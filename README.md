@@ -192,21 +192,22 @@ The loop requires a \<BEGIN\> and an \<END\> integer number, then the lambda fun
 
 ### Implementation
 
-Implementations use mostly either recursions or C++ folding expressions. Some use special command like tuple commands or sizeof... An example for a recursion is *index_of*:
+Implementations use mostly either recursions, parameter packs and/or C++ folding expressions. Some use special command like tuple commands or sizeof...
+
+#### Recursions
+
+An example for a recursion is *index_of*:
 
     namespace detail {
       template<typename, typename>
       struct index_of_impl {};
 
       template <typename T, template <typename...> typename Seq, typename... Ts>
-      struct index_of_impl<Seq<T, Ts...>,T> : std::integral_constant<std::size_t, 0> {
-        using type = std::integral_constant<std::size_t, 0>;
-      };
+      struct index_of_impl<Seq<T, Ts...>,T> : std::integral_constant<std::size_t, 0> {};
 
       template <typename T, typename TOther, template <typename...> typename Seq, typename... Ts>
-      struct index_of_impl<Seq<TOther, Ts...>,T> : std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value> {
-        using type = std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value>;
-      };
+      struct index_of_impl<Seq<TOther, Ts...>,T>
+        : std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value> {};
     }
 
     template <typename Seq, typename T>
@@ -219,18 +220,80 @@ The main definition of *index_of* is at the bottom, it is a struct taking two pa
     template<typename, typename>
     struct index_of_impl;
 
-is just a first announcement that this type exists. It is important to use this as general template, for which two *specializations* are defined. The first specialization is the special case that the recursion counter has reached the value 0, meaning that we found the type *T* we were looking for. This type *T* is stored in the *type* member:
+is just a first announcement that this type exists and that it uses two template parameters. It is important to use this as general template, for which two *specializations* are defined. The first specialization is the special case that the type *T* we were looking for is the first type of the current list. In this case, we derive the struct from a type std::integral_constant storing the value 0. This is the start for counting up.
 
     template <typename T, template <typename...> typename Seq, typename... Ts>
-    struct index_of_impl<Seq<T, Ts...>,T> : std::integral_constant<std::size_t, 0> {
-      using type = std::integral_constant<std::size_t, 0>;
-    };
+    struct index_of_impl<Seq<T, Ts...>,T> : std::integral_constant<std::size_t, 0> {};
 
-The second specialization is the general recursion case, where the counter is any number larger than 0:
+The second specialization is the general recursion case, where the first type of the current type list is *not* the type we are looking for, but some other type.
 
     template <typename T, typename TOther, template <typename...> typename Seq, typename... Ts>
-    struct index_of_impl<Seq<TOther, Ts...>,T> : std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value> {
-      using type = std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value>;
+    struct index_of_impl<Seq<TOther, Ts...>,T>
+      : std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value> {};
+
+In this case, we derive the struct from a std::integral_constant that
+stores a number that is 1 + the number for the rest of the list. This defines the recursion.
+
+In this example we derive the struct itself, but usually we use some kind of local type or value to construct the result.
+
+#### Parameter Packs
+
+An example for using folding expression is given by *variant_type*.
+
+    namespace detail {
+      template <typename Seq>
+      struct variant_type_impl;
+
+      template <template <typename...> typename Seq, typename... Ts>
+      struct variant_type_impl<Seq<Ts...>> {
+        using type = std::variant<Ts...>;
+      };
+    }
+
+    template <typename Seq>
+    using variant_type = typename detail::variant_type_impl<Seq>::type;
+
+    static_assert(
+      std::is_same_v< variant_type< type_list<double, int, char> >, std::variant<double, int, char> >,
+      "The implementation of variant_type is bad");
+
+Here all types are put into a summary variant type, a union like struct that can store all of the given types, and always knows which type it stores. The type list is passed to the impl version, which can map it to a parameter pack Ts..., which can directly be put into the type declaration of std::variant.
+
+    template <template <typename...> typename Seq, typename... Ts> //template parameters
+    struct variant_type_impl<Seq<Ts...>> {    //map type list to parameter pack Ts...
+      using type = std::variant<Ts...>;       //put parameter pack into std::variant
     };
 
-Both specializations inherit from std::integral_constant, a special type that can hold an integer value.
+
+#### Folding Expressions
+
+An example for the use of folding expressions is *has_type*. This tests whether a type list contains a given type *T*.
+
+    namespace detail {
+      template<typename Seq, typename T>
+      struct has_type_impl;
+
+      template<template <typename...> typename Seq, typename T>
+      struct has_type_impl<Seq<>, T> {
+        static const bool value = false;
+      };
+
+      template<template <typename...> typename Seq, typename... Ts, typename T>
+      struct has_type_impl<Seq<Ts...>, T> {
+        static const bool value = (std::is_same_v<T, Ts> || ... );  //folding expr
+      };
+    }
+    template <typename Seq, typename T>
+    struct has_type {
+      static const bool value = detail::has_type_impl<Seq, T>::value;
+    };
+
+    static_assert(
+      has_type<type_list<double, int, char, double>, char>::value,
+        "The implementation of has_type is bad");
+
+The type list arguments are mapped to the parameter pack Ts..., which is used in the folding expression
+
+    static const bool value = (std::is_same_v<T, Ts> || ... );  //folding expr
+
+This compares each type in the pack Ts to the target type T, each comparison is linked to the next with a logical or ||. If at least one of the comparisons evaluates to true, then the whole statement is true, otherwise it is false.

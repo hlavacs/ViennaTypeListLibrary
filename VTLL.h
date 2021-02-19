@@ -117,14 +117,10 @@ namespace vtll {
 		struct index_of_impl;
 
 		template <typename T, template <typename...> typename Seq, typename... Ts>
-		struct index_of_impl<Seq<T, Ts...>,T> : std::integral_constant<std::size_t, 0> {
-			using type = std::integral_constant<std::size_t, 0>;
-		};
+		struct index_of_impl<Seq<T, Ts...>,T> : std::integral_constant<std::size_t, 0> {};
 
 		template <typename T, typename TOther, template <typename...> typename Seq, typename... Ts>
-		struct index_of_impl<Seq<TOther, Ts...>,T> : std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value> {
-			using type = std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value>;
-		};
+		struct index_of_impl<Seq<TOther, Ts...>,T> : std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value> {};
 	}
 
 	template <typename Seq, typename T>
@@ -625,7 +621,7 @@ namespace vtll {
 	//static for: with this compile time for loop you can loop over any tuple, type list, or variadic argument list
 
 	namespace detail {
-		template <typename T, T Begin, class Func, T ...Is>
+		template <typename T, T Begin, class Func, T... Is>
 		constexpr void static_for_impl(Func&& f, std::integer_sequence<T, Is...>) {
 			(f(std::integral_constant<T, Begin + Is>{ }), ...);
 		}
