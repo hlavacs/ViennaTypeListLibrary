@@ -73,7 +73,7 @@ VTLL offers a standard type list type called *type_list*, but as shown any other
 The VTLL algorithms now work on such type lists. They accept types and type lists and others, and produce result type lists, or std::tuples from them, or test whether the lists have a specific property, e.g., contain a specific type or not. As a rule, the first parameter is always a type list, and the following parameters can be variadic parameter packs, types, or other type lists. The results of an algorithm *<STRUCTNAME<...>>* may be used in either of these ways:
 * Use just the struct directly, e.g. *Nth_type<...>* or *cat<...>*
 * Use *typename <STRUCTNAME<...>>::type*, e.g. *typename to_ptr_tuple<...>::type*
-* Use *\<STRUCTNAME<...>>::value*, e.g. *has_type<...>*
+* Use *\<STRUCTNAME<...>>::value*, e.g. *has_type<...>::value* for gaining a *value* (e.g. *bool*, *size_t*, ...), not a type
 
 
 ### Example for Testing Properties
@@ -84,7 +84,7 @@ An example for testing properties is *has_type*. It tests whether the list conta
       has_type< type_list<double, int, char, double>, char >::value
       , "The implementation of has_type is bad");
 
-The main part here is the value
+The main part here is the boolean *value*
 
     has_type< type_list<double, int, char, double>, char >::value
 
@@ -96,7 +96,7 @@ which should always by true. This means that the type list  *type_list<double, i
 
 since the type list *type_list<double, int, char, double>* does *not* contain the type *float* (Notice the ! operator).
 
-### Example for Extracting types
+### Example for Extracting Types
 
 An example for extracting types is given by *Nth_type*. The following static assert is always true:
 
@@ -105,7 +105,7 @@ An example for extracting types is given by *Nth_type*. The following static ass
         Nth_type<type_list<double, char, bool, double>, 1>, char>
       , "The implementation of Nth_type is bad");
 
-which means that the type with index 1 of *type_list<double, char, bool, double>* is *char*.
+which means that the type with index 1 (i.e., the 2nd element, indexing starts with 0) of *type_list<double, char, bool, double>* is *char*.
 
 ### Example for Creating New Type Lists
 
@@ -121,7 +121,7 @@ Here two type lists (one of type *type_list* and one of type *detail::type_list2
 
 Another example is *erase_Nth*, which removes an indexed element from a list. Consider the following examples:
 
-    //pop the element with index 1 (2nd element, indexing starts with 0)
+    //pop the element with index 1 (i.e., the 2nd element, indexing starts with 0)
     static_assert(
       std::is_same_v<
         erase_Nth< type_list<double, char, bool, double>, 1>
@@ -186,4 +186,4 @@ A particularly useful struct is the static_for struct, to be used inside of func
       }
     }
 
-The loop requires a \<BEGIN\> and an \<END\> integer number, then the lambda function is called for i = <BEGIN> to <END> - 1 . In the example, the loop runs from index 0 to the last index *size<list>::value* - 1.
+The loop requires a \<BEGIN\> and an \<END\> integer number, then the lambda function is called for i = \<BEGIN> to \<END> - 1 . In the example, the loop runs from index 0 to the last index *size<list>::value* - 1.
