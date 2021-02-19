@@ -27,12 +27,14 @@ VTLL contains the following structs and algorithms:
 * *to_ref_tuple*: turn a list into a tuple of reference types. When creating such tuples, use std::ref as a wrapper for the elements!
 * *to_ptr_tuple*: turn a list into a tuple of pointer types
 * *has_type*: check whether a type list contains a type
-* *has_any_type*: check whether a type list contains ANY type of a second typelist
+* *has_any_type*: check whether a type list contains ANY type of a second type list
+* *has_all_types*: check whether a type list contains ALL types of a second type list
+* *filter_have_type*: keep only those type lists Ts<...> that have a specific type C as member
+* *filter_have_all_types*: keep only those type lists Ts<...> that have ALL specified types Cs from another list Seq2<Cs...>
+* *filter_have_any_type*: keep only those type lists Ts<...> that have ANY specified type Cs from another list Seq2<Cs...> as member
 * *erase_type*: erase a type C from a type list
 * *erase_Nth*: erase the Nth element of a list
-* *has_all_types*: check whether a type list contains ALL types of a second typelist
-* *filter_have_type*: keep only those type lists Ts<...> that have a specific type C as member
-* *filter_have_all_type*: keep only those type lists Ts<...> that have ALL specified type Cs from another list Seq2<Cs...> as member
+as member
 * *N_tuple*: make a tuple containing a type T N times
 * *static_for*: with this compile time for loop you can loop over any tuple, type list, or variadic argument list
 

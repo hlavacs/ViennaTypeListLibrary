@@ -531,7 +531,7 @@ namespace vtll {
 
 
 	//-------------------------------------------------------------------------
-	//filter_have_all_type: keep only those type lists Ts<...> that have ALL specified type Cs from another list Seq2<Cs...> as member
+	//filter_have_all_types: keep only those type lists Ts<...> that have ALL specified type Cs from another list Seq2<Cs...> as member
 
 	namespace detail {
 		template<typename Seq1, typename Seq2>
@@ -562,6 +562,39 @@ namespace vtll {
 
 					 type_list< type_list<char, float, int>, type_list<float, double, char> > >,
 		"The implementation of filter_have_all_types is bad");
+
+
+	//-------------------------------------------------------------------------
+	//filter_have_any_type: keep only those type lists Ts<...> that have ANY specified type Cs from another list Seq2<Cs...> as member
+
+	namespace detail {
+		template<typename Seq1, typename Seq2>
+		struct filter_have_any_type_impl;
+
+		template<template <typename...> typename Seq1, template <typename...> typename Seq2, typename... Cs >
+		struct filter_have_any_type_impl<Seq1<>, Seq2<Cs...>> {
+			using type = Seq1<>;
+		};
+
+		template<template <typename...> typename Seq1, typename T, typename... Ts, template <typename...> typename Seq2, typename... Cs>
+		struct filter_have_any_type_impl<Seq1<T, Ts...>, Seq2<Cs...>> {
+			using type1 = cat< Seq1<T>, typename filter_have_any_type_impl<Seq1<Ts...>, Seq2<Cs...>>::type  >;
+			using type2 = typename filter_have_any_type_impl<Seq1<Ts...>, Seq2<Cs...>>::type;
+
+			using type = typename std::conditional< has_any_type<T, Seq2<Cs...>>::value, type1, type2 >::type;
+		};
+	}
+	template <typename Seq1, typename Seq2>
+	struct filter_have_any_type {
+		using type = typename detail::filter_have_any_type_impl<Seq1, Seq2>::type;
+	};
+
+	static_assert(
+		std::is_same_v<
+			typename filter_have_any_type< type_list< type_list<char, int>, type_list<bool, double>, type_list<float, double, char> >
+				, type_list<char, float>  >::type
+			, type_list< type_list<char, int>, type_list<float, double, char> > >,
+		"The implementation of filter_have_any_type is bad");
 
 
 	//-------------------------------------------------------------------------
