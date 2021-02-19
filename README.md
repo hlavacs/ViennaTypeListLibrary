@@ -190,7 +190,7 @@ A particularly useful struct is the static_for struct, to be used inside of func
 
 The loop requires a \<BEGIN\> and an \<END\> integer number, then the lambda function is called for i = \<BEGIN> to \<END> - 1 . In the example, the loop runs from index 0 to the last index *size\<list>::value* - 1.
 
-### implementation
+### Implementation
 
 Implementations use mostly either recursions or C++ folding expressions. Some use special command like tuple commands or sizeof... An example for a recursion is *index_of*:
 
