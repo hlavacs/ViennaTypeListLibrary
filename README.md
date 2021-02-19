@@ -15,7 +15,7 @@ VTLL contains the following structs and algorithms:
 * *Nth_type*: get the Nth element from a type list
 * *front*: first element of a type list
 * *back*: get the last element from a list
-* *index_of*: index of a type within a type list
+* *index_of*: index of first occurrence of a type within a type list
 * *cat*: concatenate two type lists to one big type list, the result is of the first list type
 * *to_ptr*: turn list elements into pointers
 * *variant_type*: make a summary variant type of all elements in a list
@@ -189,3 +189,48 @@ A particularly useful struct is the static_for struct, to be used inside of func
     }
 
 The loop requires a \<BEGIN\> and an \<END\> integer number, then the lambda function is called for i = \<BEGIN> to \<END> - 1 . In the example, the loop runs from index 0 to the last index *size\<list>::value* - 1.
+
+### implementation
+
+Implementations use mostly either recursions or C++ folding expressions. Some use special command like tuple commands or sizeof... An example for a recursion is *index_of*:
+
+    namespace detail {
+      template<typename, typename>
+      struct index_of_impl {};
+
+      template <typename T, template <typename...> typename Seq, typename... Ts>
+      struct index_of_impl<Seq<T, Ts...>,T> : std::integral_constant<std::size_t, 0> {
+        using type = std::integral_constant<std::size_t, 0>;
+      };
+
+      template <typename T, typename TOther, template <typename...> typename Seq, typename... Ts>
+      struct index_of_impl<Seq<TOther, Ts...>,T> : std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value> {
+        using type = std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value>;
+      };
+    }
+
+    template <typename Seq, typename T>
+    using index_of = typename detail::index_of_impl<Seq,T>::type; //definition !
+
+    static_assert(index_of< type_list<double, char, bool, double>, char >::value == 1);
+
+The main definition of *index_of* is at the bottom, it is a struct taking two parameters. The struct then passes on the parameters to a special implementation version, *index_of_impl* that exists in three versions. The first version
+
+    template<typename, typename>
+    struct index_of_impl;
+
+is just a first announcement that this type exists. It is important to use this as general template, for which two *specializations* are defined. The first specialization is the special case that the recursion counter has reached the value 0, meaning that we found the type *T* we were looking for. This type *T* is stored in the *type* member:
+
+    template <typename T, template <typename...> typename Seq, typename... Ts>
+    struct index_of_impl<Seq<T, Ts...>,T> : std::integral_constant<std::size_t, 0> {
+      using type = std::integral_constant<std::size_t, 0>;
+    };
+
+The second specialization is the general recursion case, where the counter is any number larger than 0:
+
+    template <typename T, typename TOther, template <typename...> typename Seq, typename... Ts>
+    struct index_of_impl<Seq<TOther, Ts...>,T> : std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value> {
+      using type = std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value>;
+    };
+
+Both specializations inherit from std::integral_constant, a special type that can hold an integer value.

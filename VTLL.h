@@ -110,19 +110,17 @@ namespace vtll {
 		"The implementation of back is bad");
 
 	//-------------------------------------------------------------------------
-	//index_of: index of a type within a type list
+	//index_of: index of first occurrence of a type within a type list
 
 	namespace detail {
 		template<typename, typename>
-		struct index_of_impl {};
+		struct index_of_impl;
 
-		// Index Of base case: found the type we're looking for.
 		template <typename T, template <typename...> typename Seq, typename... Ts>
 		struct index_of_impl<Seq<T, Ts...>,T> : std::integral_constant<std::size_t, 0> {
 			using type = std::integral_constant<std::size_t, 0>;
 		};
 
-		// Index Of recursive case: 1 + Index Of the rest of the types.
 		template <typename T, typename TOther, template <typename...> typename Seq, typename... Ts>
 		struct index_of_impl<Seq<TOther, Ts...>,T> : std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value> {
 			using type = std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value>;
