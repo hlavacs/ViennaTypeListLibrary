@@ -40,7 +40,7 @@ as member
 
 ## Usage
 
-The main starting points are types and lists of types. In this example, *A* is a type struct:
+VTLL is a single-header library, just include *VTLL.h*. The main starting points are types and lists of types. In this example, *A* is a type struct:
 
     struct A;
 
@@ -59,18 +59,25 @@ Both versions of types are fine for VTLL. In order to create type lists, we have
 
     using B = A<int>;
 
-Here, *B* is a synonym for type *A* containing the type *int*. If we want *A* to hold more types, we define a variadic type list:
+Here, *B* is a synonym for type *A* containing the type *int*. If we want *A* to hold more types, we can demand more template parameters, or more generally define a variadic *type list*:
 
     template<typename... Ts>
     struct A;
 
-Now, *A* can hold any number of types:
+Now, *A* is a type list and can hold any number of types:
 
-    using B = A<int>;
-    using C = A<float>;
-    using D = A<int, float, double>;
+  	struct S {
+        int i;
+        //...
+    };
+
+    using B = A<S>;
+    using C = A<float, char>;
+    using D = A<int, float, S>;
 
 VTLL offers a standard type list type called *type_list*, but as shown any other such templated type is also a type list and can be used with VTLL.
+
+    using E = type_list<int, float, S, S>;
 
 The VTLL algorithms now work on such type lists. They accept types and type lists and others, and produce result type lists, or std::tuples from them, or test whether the lists have a specific property, e.g., contain a specific type or not. As a rule, the first parameter is always a type list, and the following parameters can be variadic parameter packs, types, or other type lists. The results of an algorithm *<STRUCTNAME<...>>* may be used in either of these ways:
 * Use just the struct directly, e.g. *Nth_type<...>* or *cat<...>*
@@ -194,11 +201,11 @@ The loop requires a \<BEGIN\> and an \<END\> integer number, then the lambda fun
     2 bool
     3 float
 
-### Implementation
+## Implementation
 
 Implementations use mostly either recursions, parameter packs and/or C++ folding expressions. Some use special command like tuple commands or sizeof...
 
-#### Recursions
+### Recursions
 
 An example for a recursion is *index_of*:
 
@@ -240,7 +247,7 @@ stores a number that is 1 + the number for the rest of the list. This defines th
 
 In this example we derive the struct itself, but usually we use some kind of local type or value to construct the result.
 
-#### Parameter Packs
+### Parameter Packs
 
 An example for using a C++ parameter pack is given by *variant_type*.
 
@@ -269,7 +276,7 @@ Here all types are put into a summary variant type, a union like struct that can
     };
 
 
-#### Folding Expressions
+### Folding Expressions
 
 An example for the use of folding expressions is *has_type*. This tests whether a type list contains a given type *T*.
 
