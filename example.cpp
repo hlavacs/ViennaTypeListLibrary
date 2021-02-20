@@ -54,21 +54,21 @@ using VeEntityTypeList = vtll::type_list<
 	// ,... 
 >;
 
-template<typename E>
-struct VeHandle_t {
+struct VeHandle {
 	uint32_t m_entity_index{};			//the slot of the entity in the entity list
-	uint32_t m_generation_counter{};	//generation counter
+	uint16_t m_generation_counter{};	//generation counter
+	uint16_t m_index{};					//type index
+	uint32_t index() const { return static_cast<uint32_t>(m_index); };
 };
 
-using VeHandle = vtll::variant_type<vtll::transform<VeEntityTypeList, VeHandle_t>>;
 
 template <typename E>
 struct VeEntity_t {
 	using tuple_type = typename vtll::to_tuple<E>::type;
-	VeHandle_t<E>	m_handle;
-	tuple_type		m_component_data;
+	VeHandle	m_handle;
+	tuple_type	m_component_data;
 
-	VeEntity_t(const VeHandle_t<E>& h, const tuple_type& tup) noexcept : m_handle{ h }, m_component_data{ tup } {};
+	VeEntity_t(const VeHandle& h, const tuple_type& tup) noexcept : m_handle{ h }, m_component_data{ tup } {};
 
 	template<typename C>
 	std::optional<C> component() noexcept {
