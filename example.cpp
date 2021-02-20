@@ -37,7 +37,7 @@ using VeComponentTypeList = vtll::type_list<
 	//, ...
 >;
 
-using VeComponentPtr = vtll::variant_type<vtll::to_ptr<VeComponentTypeList>>;
+using VeComponentPtr = vtll::to_variant<vtll::to_ptr<VeComponentTypeList>>;
 
 
 template <typename... Ts>
@@ -87,8 +87,8 @@ struct VeEntity_t {
 	};
 };
 
-using VeEntity = vtll::variant_type<vtll::transform<VeEntityTypeList, VeEntity_t>>;
-using VeEntityPtr = vtll::variant_type<vtll::to_ptr<vtll::transform<VeEntityTypeList, VeEntity_t>>>;
+using VeEntity = vtll::to_variant<vtll::transform<VeEntityTypeList, VeEntity_t>>;
+using VeEntityPtr = vtll::to_variant<vtll::to_ptr<vtll::transform<VeEntityTypeList, VeEntity_t>>>;
 
 //...
 

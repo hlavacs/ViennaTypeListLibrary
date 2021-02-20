@@ -18,7 +18,7 @@ VTLL contains the following structs and algorithms:
 * *index_of*: index of first occurrence of a type within a type list
 * *cat*: concatenate two type lists to one big type list, the result is of the first list type
 * *to_ptr*: turn list elements into pointers
-* *variant_type*: make a summary variant type of all elements in a list
+* *to_variant*: make a summary variant type of all elements in a list
 * *transform*: transform list<types> into list<Function<types>>
 * *is_same*: test if a list contains the same types as types of a variadic parameter pack
 * *transfer*: transfer a list of types1 into a list of types2
@@ -249,24 +249,24 @@ In this example we derive the struct itself, but usually we use some kind of loc
 
 ### Parameter Packs
 
-An example for using a C++ parameter pack is given by *variant_type*.
+An example for using a C++ parameter pack is given by *to_variant*.
 
     namespace detail {
       template <typename Seq>
-      struct variant_type_impl;
+      struct to_variant_impl;
 
       template <template <typename...> typename Seq, typename... Ts>
-      struct variant_type_impl<Seq<Ts...>> {
+      struct to_variant_impl<Seq<Ts...>> {
         using type = std::variant<Ts...>;
       };
     }
 
     template <typename Seq>
-    using variant_type = typename detail::variant_type_impl<Seq>::type;
+    using to_variant = typename detail::to_variant_impl<Seq>::type;
 
     static_assert(
-      std::is_same_v< variant_type< type_list<double, int, char> >, std::variant<double, int, char> >,
-      "The implementation of variant_type is bad");
+      std::is_same_v< to_variant< type_list<double, int, char> >, std::variant<double, int, char> >,
+      "The implementation of to_variant is bad");
 
 Here all types are put into a summary variant type, a union like struct that can store all of the given types, and always knows which type it stores. The type list is passed to the impl version, which can map it to a parameter pack Ts..., which can directly be put into the type declaration of std::variant.
 

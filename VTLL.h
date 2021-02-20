@@ -183,24 +183,24 @@ namespace vtll {
 		"The implementation of to_ptr is bad");
 
 	//-------------------------------------------------------------------------
-	//variant_type: make a summary variant type of all elements in a list
+	//to_variant: make a summary variant type of all elements in a list
 
 	namespace detail {
 		template <typename Seq>
-		struct variant_type_impl;
+		struct to_variant_impl;
 
 		template <template <typename...> typename Seq, typename... Ts>
-		struct variant_type_impl<Seq<Ts...>> {
+		struct to_variant_impl<Seq<Ts...>> {
 			using type = std::variant<Ts...>;
 		};
 	}
 
 	template <typename Seq>
-	using variant_type = typename detail::variant_type_impl<Seq>::type;
+	using to_variant = typename detail::to_variant_impl<Seq>::type;
 
 	static_assert(
-		std::is_same_v< variant_type< type_list<double, int, char> >, std::variant<double, int, char> >,
-		"The implementation of variant_type is bad");
+		std::is_same_v< to_variant< type_list<double, int, char> >, std::variant<double, int, char> >,
+		"The implementation of to_variant is bad");
 
 	//-------------------------------------------------------------------------
 	//transform: transform list<types> into list<Function<types>>
