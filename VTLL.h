@@ -637,7 +637,7 @@ namespace vtll {
 			using list = type_list<int, double, bool, float >;
 			static_for< int, 0, size<list>::value >([&](auto i) {
 				using type = Nth_type<list, i>;
-				std::cout << i << " " << typeid(type).name(); }
+				std::cout << i << " " << typeid(type).name() << std::endl; }
 			);
 		}
 	}

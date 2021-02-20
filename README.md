@@ -182,13 +182,17 @@ A particularly useful struct is the static_for struct, to be used inside of func
       static_for< int, 0, size<list>::value >(
         [&](auto i) {
           using type = Nth_type<list, i>;
-
-          std::cout << i << " " << typeid(type).name(); }
+          std::cout << i << " " << typeid(type).name() << std::endl; }
         );
       }
     }
 
-The loop requires a \<BEGIN\> and an \<END\> integer number, then the lambda function is called for i = \<BEGIN> to \<END> - 1 . In the example, the loop runs from index 0 to the last index *size\<list>::value* - 1.
+The loop requires a \<BEGIN\> and an \<END\> integer number, then the lambda function is called for i = \<BEGIN> to \<END> - 1 . In the example, the loop runs from index 0 to the last index *size\<list>::value* - 1. When calling vtll::detail::f(), the output looks like this:
+
+    0 int
+    1 double
+    2 bool
+    3 float
 
 ### Implementation
 
@@ -238,7 +242,7 @@ In this example we derive the struct itself, but usually we use some kind of loc
 
 #### Parameter Packs
 
-An example for using folding expression is given by *variant_type*.
+An example for using a C++ parameter pack is given by *variant_type*.
 
     namespace detail {
       template <typename Seq>
