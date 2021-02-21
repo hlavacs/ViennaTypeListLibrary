@@ -34,7 +34,6 @@ VTLL contains the following structs and algorithms:
 * *filter_have_any_type*: keep only those type lists Ts<...> that have ANY specified type Cs from another list Seq2<Cs...> as member
 * *erase_type*: erase a type C from a type list
 * *erase_Nth*: erase the Nth element of a list
-as member
 * *N_tuple*: make a tuple containing a type T N times
 * *static_for*: with this compile time for loop you can loop over any tuple, type list, or variadic argument list
 
@@ -79,9 +78,9 @@ VTLL offers a standard type list type called *type_list*, but as shown any other
 
     using E = type_list<int, float, S, S>;
 
-The VTLL algorithms now work on such type lists. They accept types and type lists and others, and produce result type lists, or std::tuples from them, or test whether the lists have a specific property, e.g., contain a specific type or not. As a rule, the first parameter is always a type list, and the following parameters can be variadic parameter packs, types, or other type lists. The results of an algorithm *<STRUCTNAME<...>>* may be used in either of these ways:
-* Use the algorithm directly to get a *type*, e.g. *Nth_type<...>* or *cat<...>*
-* Use *\<STRUCTNAME<...>>::value*, e.g. *has_type<...>::value* for gaining a *value* (e.g. *bool*, *size_t*, ...), not a type
+The VTLL algorithms now work on such type lists. They accept types and type lists and others, and produce result type lists, or std::tuples from them, or test whether the lists have a specific property, e.g., contain a specific type or not. As a rule, the first parameter is always a type list, and the following parameters can be variadic parameter packs, types, or other type lists. The results of an algorithm *\<ALGORITHM<...>>* may be used in either of these ways:
+* Use the algorithm directly to get a *type*, e.g. *Nth_type\<...>* or *cat\<...>*.
+* Use *\<ALGORITHM<...>>::value*, e.g., *has_type<...>::value*, for gaining a *value* like *int*, *bool*, *size_t*, etc., not a type.
 
 
 ### Example for Testing Properties
@@ -224,26 +223,25 @@ An example for a recursion is *index_of*:
 
     static_assert(index_of< type_list<double, char, bool, double>, char >::value == 1);
 
-The main definition of *index_of* is at the bottom, it is a struct taking two parameters. The struct then passes on the parameters to a special implementation version, *index_of_impl* that exists in three versions. The first version
+The main definition of *index_of* is at the bottom, it is a *struct* taking two parameters. The struct then passes on the parameters to a special implementation version, *index_of_impl* that exists in three versions. The first version
 
     template<typename, typename>
     struct index_of_impl;
 
-is just a first announcement that this type exists and that it uses two template parameters. It is important to use this as general template, for which two *specializations* are defined. The first specialization is the special case that the type *T* we were looking for is the first type of the current list. In this case, we derive the struct from a type std::integral_constant storing the value 0. This is the start for counting up.
+is the *primary template*, a first, incomplete announcement that this type exists and that it uses two template parameters. For the primary template,  two *specializations* are then defined. The first specialization is the special case that the type *T* we were looking for is the *first type* of the current list. Notice that there is only one *typename T* as template parameter, occurring two times. Thus, both must be the same.
 
     template <typename T, template <typename...> typename Seq, typename... Ts>
-    struct index_of_impl<Seq<T, Ts...>,T> : std::integral_constant<std::size_t, 0> {};
+    struct index_of_impl<Seq<T, Ts...>,T> : std::integral_constant<std::size_t, 0> {}; //T occurs two times, must be identical
 
-The second specialization is the general recursion case, where the first type of the current type list is *not* the type we are looking for, but some other type.
+Notice that since this struct uses less template parameters than the next, for *overload resolution*, the compiler will always prefer it (more spezialized) to the next, more general template. So whenever the first template parameter is the one we look for, this struct is chosen.
+Also, for storing actual integer values, we derive the struct from a type *std::integral_constant* storing the value 0. This is the start for counting up! The second specialization is the general recursion case, where the first type of the current type list is *not* the type we are looking for, but some other type.
 
     template <typename T, typename TOther, template <typename...> typename Seq, typename... Ts>
     struct index_of_impl<Seq<TOther, Ts...>,T>
       : std::integral_constant<std::size_t, 1 + index_of_impl<Seq<Ts...>,T>::value> {};
 
-In this case, we derive the struct from a std::integral_constant that
-stores a number that is 1 + the number for the rest of the list. This defines the recursion.
-
-In this example we derive the struct itself, but usually we use some kind of local type or value to construct the result.
+We derive this struct from a std::integral_constant that stores a number that is 1 + the number for the rest of the list. This defines the *recursion*.
+In this example we derive the struct itself from std::integral_constant, but usually we use some kind of local type or value to construct the result.
 
 ### Parameter Packs
 
