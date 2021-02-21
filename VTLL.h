@@ -82,7 +82,7 @@ namespace vtll {
 	using Nth_type = typename detail::Nth_type_impl<Seq, N>::type;
 
 	static_assert(
-		std::is_same_v<Nth_type<type_list<double, char, bool, double>, 1>, char>,
+		std::is_same_v<Nth_type<type_list<double, char, bool, float>, 1>, char>,
 		"The implementation of Nth_type is bad");
 
 	//-------------------------------------------------------------------------
