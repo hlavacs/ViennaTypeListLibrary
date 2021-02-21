@@ -160,13 +160,12 @@ An example for creating tuples is given by *to_ref_tuple*, which turns a type li
 
     static_assert(
       std::is_same_v<
-        typename to_ref_tuple<type_list<double, int>>::type
-        , std::tuple<double&, int&> >
+        to_ref_tuple<type_list<double, int>>, std::tuple<double&, int&> >
       , "The implementation of to_ref_tuple is bad");
 
 However, this results only in a *type* of a tuple, not in a tuple itself. When constructing such a tuple, you should use std::ref as a wrapper for the tuple elements:
 
-    using tuple_type = typename to_ref_tuple<type_list<double, int>>::type;
+    using tuple_type = to_ref_tuple<type_list<double, int>>;
 
     void func( tuple_type & tup ) {
       std::get<0>(tup) = 1.0;         //d = 1.0
@@ -295,6 +294,7 @@ An example for the use of folding expressions is *has_type*. This tests whether 
         static const bool value = (std::is_same_v<T, Ts> || ... );  //folding expr
       };
     }
+    
     template <typename Seq, typename T>
     struct has_type {
       static const bool value = detail::has_type_impl<Seq, T>::value;
