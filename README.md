@@ -15,6 +15,7 @@ VTLL contains the following structs and algorithms:
 * *Nth_type*: get the Nth element from a type list
 * *front*: first element of a type list
 * *back*: get the last element from a list
+* *pop_Nth*: remove the Nth element from a list
 * *index_of*: index of first occurrence of a type within a type list
 * *cat*: concatenate two type lists to one big type list, the result is of the first list type
 * *to_ptr*: turn list elements into pointers

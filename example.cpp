@@ -47,28 +47,29 @@ using VeEntityNode = VeEntityType<VeComponentPosition, VeComponentOrientation>;
 using VeEntityDraw = VeEntityType<VeComponentMaterial, VeComponentGeometry>;
 using VeEntityAnimation = VeEntityType<VeComponentAnimation>;
 
-using VeEntityTypeList = vtll::type_list<
+using VecsEntityTypeList = vtll::type_list<
 	VeEntityNode
 	, VeEntityDraw
 	, VeEntityAnimation
 	// ,... 
 >;
 
-struct VeHandle {
+struct VecsHandle {
 	uint32_t m_entity_index{};			//the slot of the entity in the entity list
 	uint16_t m_generation_counter{};	//generation counter
 	uint16_t m_index{};					//type index
 	uint32_t index() const { return static_cast<uint32_t>(m_index); };
+	//....
 };
 
 
 template <typename E>
-struct VeEntity_t {
+struct VecsEntity {
 	using tuple_type = typename vtll::to_tuple<E>::type;
-	VeHandle	m_handle;
+	VecsHandle	m_handle;
 	tuple_type	m_component_data;
 
-	VeEntity_t(const VeHandle& h, const tuple_type& tup) noexcept : m_handle{ h }, m_component_data{ tup } {};
+	VecsEntity(const VecsHandle& h, const tuple_type& tup) noexcept : m_handle{ h }, m_component_data{ tup } {};
 
 	template<typename C>
 	std::optional<C> component() noexcept {
@@ -85,10 +86,10 @@ struct VeEntity_t {
 		}
 		return;
 	};
+
+	//....
 };
 
-using VeEntity = vtll::to_variant<vtll::transform<VeEntityTypeList, VeEntity_t>>;
-using VeEntityPtr = vtll::to_variant<vtll::to_ptr<vtll::transform<VeEntityTypeList, VeEntity_t>>>;
 
 //...
 
