@@ -163,31 +163,6 @@ namespace vtll {
 		"The implementation of cat is bad");
 
 	//-------------------------------------------------------------------------
-	//pop_Nth: remove the Nth element from a list
-
-	namespace detail {
-		template<typename, size_t>
-		struct pop_Nth_impl;
-
-		template <typename T, template <typename...> typename Seq, typename... Ts>
-		struct pop_Nth_impl<Seq<T, Ts...>, 0> {
-			using type = Seq<Ts...>;
-		};
-
-		template <typename T, template <typename...> typename Seq, typename... Ts, size_t N>
-		struct pop_Nth_impl<Seq<T, Ts...>, N> {
-			using type = cat< Seq<T>, typename pop_Nth_impl<Seq<Ts...>, N-1>::type >;
-		};
-	}
-
-	template <typename Seq, size_t N>
-	using pop_Nth = typename detail::pop_Nth_impl<Seq, N>::type;
-
-	static_assert(
-		std::is_same_v < pop_Nth< type_list<double, char, bool, float>, 1 >, type_list<double, bool, float > > ,
-		"The implementation of pop_Nth is bad");
-
-	//-------------------------------------------------------------------------
 	//to_ptr: turn list elements into pointers
 
 	namespace detail {
