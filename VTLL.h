@@ -584,28 +584,34 @@ namespace vtll {
 	//-------------------------------------------------------------------------
 	//N_tuple: make a tuple containing a type T N times
 
+	namespace detail {
+
+		template <typename T, size_t N>
+		struct N_tuple_impl {
+			template <typename U>
+			struct impl;
+
+			template <>
+			struct impl<std::integer_sequence<std::size_t>> {
+				using type = std::tuple<>;
+			};
+
+			template <size_t... Is>
+			struct impl<std::index_sequence<Is...>> {
+				template <size_t >
+				using wrap = T;
+				using type = std::tuple<wrap<Is>...>;
+			};
+
+		public:
+			using type = typename impl<std::make_index_sequence<N>>::type;
+		};
+	}
+
 	template <typename T, size_t N>
-	struct N_tuple {
-		template <typename U>
-		struct impl;
+	using N_tuple = typename detail::N_tuple_impl<T,N>::type;
 
-		template <>
-		struct impl<std::integer_sequence<std::size_t>> {
-			using type = std::tuple<>;
-		};
-
-		template <size_t... Is>
-		struct impl<std::index_sequence<Is...>> {
-			template <size_t >
-			using wrap = T;
-			using type = std::tuple<wrap<Is>...>;
-		};
-
-	public:
-		using type = typename impl<std::make_index_sequence<N>>::type;
-	};
-
-	static_assert( std::is_same_v< N_tuple<int,4>::type, std::tuple<int,int,int,int> >, "The implementation of N_tuple is bad");
+	static_assert( std::is_same_v< N_tuple<int,4>, std::tuple<int,int,int,int> >, "The implementation of N_tuple is bad");
 
 	//-------------------------------------------------------------------------
 	//static for: with this compile time for loop you can loop over any tuple, type list, or variadic argument list

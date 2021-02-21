@@ -80,8 +80,7 @@ VTLL offers a standard type list type called *type_list*, but as shown any other
     using E = type_list<int, float, S, S>;
 
 The VTLL algorithms now work on such type lists. They accept types and type lists and others, and produce result type lists, or std::tuples from them, or test whether the lists have a specific property, e.g., contain a specific type or not. As a rule, the first parameter is always a type list, and the following parameters can be variadic parameter packs, types, or other type lists. The results of an algorithm *<STRUCTNAME<...>>* may be used in either of these ways:
-* Use just the struct directly, e.g. *Nth_type<...>* or *cat<...>*
-* Use *typename <STRUCTNAME<...>>::type*, e.g. *typename to_ptr_tuple<...>::type*
+* Use the algorithm directly to get a *type*, e.g. *Nth_type<...>* or *cat<...>*
 * Use *\<STRUCTNAME<...>>::value*, e.g. *has_type<...>::value* for gaining a *value* (e.g. *bool*, *size_t*, ...), not a type
 
 
