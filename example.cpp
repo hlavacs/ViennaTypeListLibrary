@@ -65,7 +65,7 @@ struct VecsHandle {
 
 template <typename E>
 struct VecsEntity {
-	using tuple_type = typename vtll::to_tuple<E>::type;
+	using tuple_type = vtll::to_tuple<E>;
 	VecsHandle	m_handle;
 	tuple_type	m_component_data;
 
