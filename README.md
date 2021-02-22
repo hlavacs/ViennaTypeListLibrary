@@ -20,6 +20,7 @@ VTLL contains the following structs and algorithms:
 * *to_ptr*: turn list elements into pointers
 * *to_variant*: make a summary variant type of all elements in a list
 * *transform*: transform list<types> into list<Function<types>>
+* *transform_size_t*: transform list<types> into list<Function<types,size_t>>, e.g. for using std::array<T,size_t>
 * *is_same*: test if a list contains the same types as types of a variadic parameter pack
 * *transfer*: transfer a list of types1 into a list of types2
 * *substitute*: substitute a type list TYPE with another list type
