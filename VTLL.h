@@ -82,7 +82,7 @@ namespace vtll {
 	using Nth_type = typename detail::Nth_type_impl<Seq, N>::type;
 
 	static_assert(
-		std::is_same_v<Nth_type<type_list<double, char, bool, float>, 1>, char>,
+		std::is_same_v<Nth_type<type_list<double, char, bool, double>, 1>, char>,
 		"The implementation of Nth_type is bad");
 
 	//-------------------------------------------------------------------------
@@ -237,7 +237,7 @@ namespace vtll {
 	using transform_size_t = typename detail::transform_size_t_impl<Seq, Fun, N>::type;
 
 	static_assert(
-		std::is_same_v< transform_size_t< type_list<double, int>, std::array, 10 >, type_list<std::array<double, 10>, std::array<int, 10>> >,
+		std::is_same_v< transform_size_t< type_list<double, int>, std::array, 10 >, type_list<std::array<double, 10>, std::array<int,10>> >,
 		"The implementation of transform_size_t is bad");
 
 	//-------------------------------------------------------------------------
@@ -376,6 +376,49 @@ namespace vtll {
 	static_assert(
 		std::is_same_v< to_ptr_tuple<type_list<double, int>>, std::tuple<double*, int*> >,
 		"The implementation of to_ptr_tuple is bad");
+
+	//-------------------------------------------------------------------------
+	//is_same_tuple: test whether two tuples are the same
+
+	namespace detail {
+		template<typename T, size_t... Is>
+		constexpr auto is_same_tuple_impl(const T& t1, const T& t2, std::index_sequence<Is...>) {
+			return ( (std::get<Is>(t1) == std::get<Is>(t2)) && ... );
+		}
+	}
+
+	template <typename T>
+	constexpr auto is_same_tuple(const T& t1, const T& t2 ) {
+		return detail::is_same_tuple_impl(t1, t2, std::make_index_sequence<std::tuple_size_v<T>>{ });
+	}
+
+	template <typename T1, typename T2>
+	constexpr auto is_same_tuple(const T1& t1, const T2& t2) {
+		return false;
+	}
+
+	static_assert( is_same_tuple(std::make_tuple(1, "a", 4.5), std::make_tuple(1, "a", 4.5)), "The implementation of is_same_tuple is bad");
+	static_assert(!is_same_tuple(std::make_tuple(1, "a", 4.5), std::make_tuple(1, "b", 4.5)), "The implementation of is_same_tuple is bad");
+	static_assert(!is_same_tuple(std::make_tuple(1, "a", 4.5), std::make_tuple("a", 4.5)), "The implementation of is_same_tuple is bad");
+
+	//-------------------------------------------------------------------------
+	//sub_tuple: extract a subtuple from a tuple, from Begin to End - 1
+
+	namespace detail {
+		template<size_t Begin, typename T, size_t... Is>
+		constexpr auto sub_tuple_impl(T&& tup, std::index_sequence<Is...>) {
+			return std::make_tuple( std::get<Begin + Is>(tup)... );
+		}
+	}
+
+	template <size_t Begin, size_t End, typename T>
+	constexpr auto sub_tuple(T&& tup) {
+		return detail::sub_tuple_impl<Begin>(std::forward<T>(tup), std::make_integer_sequence<size_t, End - Begin>{ });
+	}
+
+	static_assert( is_same_tuple(sub_tuple<2,4>(std::make_tuple(1,"a", 4.5, 'C', 5.0f)), std::make_tuple(4.5, 'C')), "The implementation of sub_tuple is bad");
+	static_assert(!is_same_tuple(sub_tuple<2, 4>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple("a", 4.5, 'C')), "The implementation of sub_tuple is bad");
+	static_assert(!is_same_tuple(sub_tuple<2, 4>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple('C')), "The implementation of sub_tuple is bad");
 
 	//-------------------------------------------------------------------------
 	//has_type: check whether a type list contains a type
@@ -603,34 +646,28 @@ namespace vtll {
 	//-------------------------------------------------------------------------
 	//N_tuple: make a tuple containing a type T N times
 
-	namespace detail {
-
-		template <typename T, size_t N>
-		struct N_tuple_impl {
-			template <typename U>
-			struct impl;
-
-			template <>
-			struct impl<std::integer_sequence<std::size_t>> {
-				using type = std::tuple<>;
-			};
-
-			template <size_t... Is>
-			struct impl<std::index_sequence<Is...>> {
-				template <size_t >
-				using wrap = T;
-				using type = std::tuple<wrap<Is>...>;
-			};
-
-		public:
-			using type = typename impl<std::make_index_sequence<N>>::type;
-		};
-	}
-
 	template <typename T, size_t N>
-	using N_tuple = typename detail::N_tuple_impl<T,N>::type;
+	struct N_tuple {
+		template <typename U>
+		struct impl;
 
-	static_assert( std::is_same_v< N_tuple<int,4>, std::tuple<int,int,int,int> >, "The implementation of N_tuple is bad");
+		template <>
+		struct impl<std::integer_sequence<std::size_t>> {
+			using type = std::tuple<>;
+		};
+
+		template <size_t... Is>
+		struct impl<std::index_sequence<Is...>> {
+			template <size_t >
+			using wrap = T;
+			using type = std::tuple<wrap<Is>...>;
+		};
+
+	public:
+		using type = typename impl<std::make_index_sequence<N>>::type;
+	};
+
+	static_assert( std::is_same_v< N_tuple<int,4>::type, std::tuple<int,int,int,int> >, "The implementation of N_tuple is bad");
 
 	//-------------------------------------------------------------------------
 	//static for: with this compile time for loop you can loop over any tuple, type list, or variadic argument list

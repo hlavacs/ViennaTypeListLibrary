@@ -27,6 +27,8 @@ VTLL contains the following structs and algorithms:
 * *to_tuple*: turn a list into a tuple
 * *to_ref_tuple*: turn a list into a tuple of reference types. When creating such tuples, use std::ref as a wrapper for the elements!
 * *to_ptr_tuple*: turn a list into a tuple of pointer types
+* *is_same_tuple*: test whether two tuples are the same
+* *sub_tuple*: extract a subtuple from a tuple
 * *has_type*: check whether a type list contains a type
 * *has_any_type*: check whether a type list contains ANY type of a second type list
 * *has_all_types*: check whether a type list contains ALL types of a second type list
