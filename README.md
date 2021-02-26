@@ -10,6 +10,8 @@ For building the example project for MSVC just run the msvc.bat batch file.
 ## Algorithms
 VTLL contains the following structs and algorithms:
 
+### Type List Algorithms
+
 * *type_list* and *detail::type_list2*: structures that can be used to hold lists of types. Of course, any other similarly templated struct can be used as type list.
 * *size*: size of a type list
 * *Nth_type*: get the Nth element from a type list
@@ -24,12 +26,6 @@ VTLL contains the following structs and algorithms:
 * *is_same*: test if a list contains the same types as types of a variadic parameter pack
 * *transfer*: transfer a list of types1 into a list of types2
 * *substitute*: substitute a type list TYPE with another list type
-* *to_tuple*: turn a list into a tuple
-* *to_ref_tuple*: turn a list into a tuple of reference types. When creating such tuples, use std::ref as a wrapper for the elements!
-* *to_ptr_tuple*: turn a list into a tuple of pointer types
-* *is_same_tuple*: test whether two tuples are the same
-* *sub_tuple*: extract a subtuple from a tuple
-* *sub_ref_tuple*: extract a subtuple of references from a tuple
 * *has_type*: check whether a type list contains a type
 * *has_any_type*: check whether a type list contains ANY type of a second type list
 * *has_all_types*: check whether a type list contains ALL types of a second type list
@@ -39,11 +35,28 @@ VTLL contains the following structs and algorithms:
 * *erase_type*: erase a type C from a type list
 * *erase_Nth*: erase the Nth element of a list
 * *sum*: compute the sum of a list of std::integral_constant<size_t, I>
-* *sum_size_t*: compute the sum of a list of size_t s
 * *function*: compute function on list of std::integral_constant<size_t, I>
-* *function_size_t*: compute function on list of size_t s
 * *N_tuple*: make a tuple containing a type T N times
 * *static_for*: with this compile time for loop you can loop over any tuple, type list, or variadic argument list
+
+### Tuple Algorithms
+
+* *to_tuple*: turn a list into a tuple
+* *to_ref_tuple*: turn a list into a tuple of reference types. When creating such tuples, use std::ref as a wrapper for the elements!
+* *to_ptr_tuple*: turn a list into a tuple of pointer types
+* *is_same_tuple*: test whether two tuples are the same
+* *sub_tuple*: extract a subtuple from a tuple
+* *sub_ref_tuple*: extract a subtuple of references from a tuple
+
+
+### Value List Algorithms
+* *size_value*: get the size of a value list
+* *Nth_value*: get the Nth value from a value list
+* *front_value*: get the first value from a value list
+* *back_value*: get the last value from a value list
+* *sum_size_t*: compute the sum of a list of size_t s
+* *function_size_t*: compute function on list of size_t s
+
 
 ## Usage
 
@@ -89,6 +102,19 @@ VTLL offers a standard type list type called *type_list*, but as shown any other
 The VTLL algorithms now work on such type lists. They accept types and type lists and others, and produce result type lists, or std::tuples from them, or test whether the lists have a specific property, e.g., contain a specific type or not. As a rule, the first parameter is always a type list, and the following parameters can be variadic parameter packs, types, or other type lists. The results of an algorithm *\<ALGORITHM<...>>* may be used in either of these ways:
 * Use the algorithm directly to get a *type*, e.g. *Nth_type\<...>* or *cat\<...>*.
 * Use *\<ALGORITHM<...>>::value*, e.g., *has_type<...>::value*, for gaining a *value* like *int*, *bool*, *size_t*, etc., not a type.
+
+A special case is given if the list contains only values, not types. Consider the following struct:
+
+    template <size_t... Is>
+    struct value_list {
+        using size = std::integral_constant<std::size_t, sizeof...(Is)>;
+    };
+
+The template parameters are now integer numbers of size_t, the list can therefore only store integers. Here we talk about a *value list*:
+
+    using vl = value_list<1,2,3,4,5>;
+
+Though value lists are similar to type lists, they must be treated differently. VTLL thus contains a different set of algorithms for value lists. Note that the type *std::integral_constant<size_t, N>* is a type that can store a value. All value list algorithms result in a *std::integral_constant<size_t, N>*, and its value can be retrieved by using *::value* after the algorithm.
 
 
 ### Example for Testing Properties
@@ -181,6 +207,29 @@ However, this results only in a *type* of a tuple, not in a tuple itself. When c
     tuple_type tup = std::make_tuple(std::ref(d), std::ref(i));
     //...
     func(tup);
+
+
+### Example for a Value List Algorithm
+
+An exampe for a value list algorithm is given by *Nth_value*, which retrieves the Nth value from a value list.
+
+    namespace detail {
+      template <typename Seq, size_t N>
+      struct Nth_value_impl;
+
+      template < template<size_t...> typename Seq, size_t... Is, size_t N>
+      struct Nth_value_impl<Seq<Is...>,N> {
+        using type = Nth_type< type_list<std::integral_constant<size_t, Is>...>, N>;
+      };
+    }
+
+    template <typename Seq, size_t N>
+    using Nth_value = typename detail::Nth_value_impl<Seq, N>::type;
+
+    static_assert( std::is_same_v< Nth_value< value_list<1, 2, 3>, 1 >, std::integral_constant<size_t, 2> >,
+      "The implementation of Nth_value is bad");
+
+The trick here is to turn a value list into a type list by wrapping the values into types *std::integral_constant<>* (using the parameter pack), and then apply the *Nth_type* algorithm.
 
 
 ### Static For Loop
