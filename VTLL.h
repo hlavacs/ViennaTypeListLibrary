@@ -95,18 +95,22 @@ namespace vtll {
 		std::is_same< front<type_list<double, char, bool, float>>, double >::value,
 		"The implementation of front is bad");
 
+	static_assert(
+		!std::is_same< front<type_list<int, char, bool, float>>, double >::value,
+		"The implementation of front is bad");
+
 	//-------------------------------------------------------------------------
 	//back: get the last element from a list
 
-	template <typename Seq, size_t N>
+	template <typename Seq>
 	using back = Nth_type<Seq, std::integral_constant<std::size_t, size<Seq>::value - 1>::value >;
 
 	static_assert(
-		std::is_same<back<type_list<double, char, bool, float>, 1>, float>::value,
+		std::is_same<back<type_list<double, char, bool, float>>, float>::value,
 		"The implementation of back is bad");
 
 	static_assert(
-		!std::is_same<back<type_list<double, char, bool, float>, 1>, char>::value,
+		!std::is_same<back<type_list<double, char, bool, float>>, char>::value,
 		"The implementation of back is bad");
 
 	//-------------------------------------------------------------------------
@@ -402,12 +406,12 @@ namespace vtll {
 	static_assert(!is_same_tuple(std::make_tuple(1, "a", 4.5), std::make_tuple("a", 4.5)), "The implementation of is_same_tuple is bad");
 
 	//-------------------------------------------------------------------------
-	//sub_tuple: extract a subtuple from a tuple, from Begin to End - 1
+	//sub_tuple: extract a subtuple from a tuple
 
 	namespace detail {
 		template<size_t Begin, typename T, size_t... Is>
 		constexpr auto sub_tuple_impl(T&& tup, std::index_sequence<Is...>) {
-			return std::make_tuple( std::get<Begin + Is>(tup)... );
+			return std::make_tuple(std::get<Begin + Is>(tup)...);
 		}
 	}
 
@@ -416,9 +420,34 @@ namespace vtll {
 		return detail::sub_tuple_impl<Begin>(std::forward<T>(tup), std::make_integer_sequence<size_t, End - Begin>{ });
 	}
 
-	static_assert( is_same_tuple(sub_tuple<2,4>(std::make_tuple(1,"a", 4.5, 'C', 5.0f)), std::make_tuple(4.5, 'C')), "The implementation of sub_tuple is bad");
+	static_assert(is_same_tuple(sub_tuple<2, 4>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple(4.5, 'C')), "The implementation of sub_tuple is bad");
 	static_assert(!is_same_tuple(sub_tuple<2, 4>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple("a", 4.5, 'C')), "The implementation of sub_tuple is bad");
 	static_assert(!is_same_tuple(sub_tuple<2, 4>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple('C')), "The implementation of sub_tuple is bad");
+
+
+	//-------------------------------------------------------------------------
+	//sub_ref_tuple: extract a subtuple of references from a tuple
+
+	namespace detail {
+		template<size_t Begin, typename T, size_t... Is>
+		constexpr auto sub_ref_tuple_impl(T&& tup, std::index_sequence<Is...>) {
+			return std::make_tuple( std::ref(std::get<Begin + Is>(tup))... );
+		}
+	}
+
+	template <size_t Begin, size_t End, typename T>
+	constexpr auto sub_ref_tuple(T&& tup) {
+		return detail::sub_ref_tuple_impl<Begin>(std::forward<T>(tup), std::make_integer_sequence<size_t, End - Begin>{ });
+	}
+
+	/*assert( 
+		is_same_tuple(
+			sub_ref_tuple<2, 4>(
+				std::make_tuple(detail::a, detail::b, detail::c, detail::d, detail::e ))
+			
+			, std::make_tuple(std::ref(detail::c), std::ref(detail::d)))
+		, "The implementation of sub_ref_tuple is bad");
+		*/
 
 	//-------------------------------------------------------------------------
 	//has_type: check whether a type list contains a type
@@ -668,6 +697,37 @@ namespace vtll {
 	};
 
 	static_assert( std::is_same_v< N_tuple<int,4>::type, std::tuple<int,int,int,int> >, "The implementation of N_tuple is bad");
+
+	//-------------------------------------------------------------------------
+	//sum: compute the sum of a list of std::integral_constant<size_t, I>
+
+	namespace detail {
+		template<typename Seq>
+		struct sum_impl;
+
+		template<template <typename...> typename Seq, typename... Ts>
+		struct sum_impl<Seq<Ts...>> {
+			using type = std::integral_constant<size_t, (Ts::value + ... + 0)>;
+		};
+	}
+	template <typename Seq>
+	using sum = typename detail::sum_impl<Seq>::type;
+
+	static_assert(
+		std::is_same_v< 
+			sum< type_list<std::integral_constant<size_t, 1>, std::integral_constant<size_t, 2>, std::integral_constant<size_t, 3> > > 
+			, std::integral_constant<size_t, 6> >,
+
+		"The implementation of sum is bad");
+
+	//-------------------------------------------------------------------------
+	//sum_size_t: compute the sum of a list of size_t s
+
+	template <size_t... Is>
+	using sum_size_t = std::integral_constant<size_t, (Is + ... + 0)>;
+
+	static_assert( std::is_same_v< sum_size_t< 1, 2, 3> , std::integral_constant<size_t, 6> >,
+		"The implementation of sum_size_t is bad");
 
 	//-------------------------------------------------------------------------
 	//static for: with this compile time for loop you can loop over any tuple, type list, or variadic argument list

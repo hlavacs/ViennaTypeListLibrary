@@ -29,6 +29,7 @@ VTLL contains the following structs and algorithms:
 * *to_ptr_tuple*: turn a list into a tuple of pointer types
 * *is_same_tuple*: test whether two tuples are the same
 * *sub_tuple*: extract a subtuple from a tuple
+* *sub_ref_tuple*: extract a subtuple of references from a tuple
 * *has_type*: check whether a type list contains a type
 * *has_any_type*: check whether a type list contains ANY type of a second type list
 * *has_all_types*: check whether a type list contains ALL types of a second type list
@@ -37,6 +38,8 @@ VTLL contains the following structs and algorithms:
 * *filter_have_any_type*: keep only those type lists Ts<...> that have ANY specified type Cs from another list Seq2<Cs...> as member
 * *erase_type*: erase a type C from a type list
 * *erase_Nth*: erase the Nth element of a list
+* *sum*: compute the sum of a list of std::integral_constant<size_t, I>
+* *sum_size_t*: compute the sum of a list of size_t s
 * *N_tuple*: make a tuple containing a type T N times
 * *static_for*: with this compile time for loop you can loop over any tuple, type list, or variadic argument list
 
