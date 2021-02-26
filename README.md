@@ -50,12 +50,16 @@ VTLL contains the following structs and algorithms:
 
 
 ### Value List Algorithms
+
+* *value_list*: a list that stores size_t values
 * *size_value*: get the size of a value list
 * *Nth_value*: get the Nth value from a value list
 * *front_value*: get the first value from a value list
 * *back_value*: get the last value from a value list
 * *sum_size_t*: compute the sum of a list of size_t s
 * *function_size_t*: compute function on list of size_t s
+* *type_to_value_list*: turn a list of std::integral_constant<> into a value list
+* *value_to_type_list*: turn a value list into a list of std::integral_constant<>
 
 
 ## Usage
