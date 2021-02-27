@@ -52,14 +52,14 @@ VTLL contains the following structs and algorithms:
 ### Value List Algorithms
 
 * *value_list*: a list that stores size_t values
+* *type_to_value*: turn a list of std::integral_constant<> into a value list
+* *value_to_type*: turn a value list into a list of std::integral_constant<>
 * *size_value*: get the size of a value list
 * *Nth_value*: get the Nth value from a value list
 * *front_value*: get the first value from a value list
 * *back_value*: get the last value from a value list
-* *sum_size_t*: compute the sum of a list of size_t s
-* *function_size_t*: compute function on list of size_t s
-* *type_to_value_list*: turn a list of std::integral_constant<> into a value list
-* *value_to_type_list*: turn a value list into a list of std::integral_constant<>
+* *sum_value*: compute the sum of a list of size_t s
+* *function_value*: compute function on list of size_t s
 
 
 ## Usage
@@ -114,11 +114,14 @@ A special case is given if the list contains only values, not types. Consider th
         using size = std::integral_constant<std::size_t, sizeof...(Is)>;
     };
 
-The template parameters are now integer numbers of size_t, the list can therefore only store integers. Here we talk about a *value list*:
+The template parameters are now integer numbers of type *size_t*, the list can therefore only store unsigned integers. Here we talk about a *value list*:
 
     using vl = value_list<1,2,3,4,5>;
 
-Though value lists are similar to type lists, they must be treated differently. VTLL thus contains a different set of algorithms for value lists. Note that the type *std::integral_constant<size_t, N>* is a type that can store a value. All value list algorithms result in a *std::integral_constant<size_t, N>*, and its value can be retrieved by using *::value* after the algorithm.
+Though value lists are similar to type lists, they must be treated differently. VTLL thus contains a different set of algorithms for value lists. Note that the type *std::integral_constant<size_t, N>* is a type that can store a value. All value list algorithms result in a *std::integral_constant<size_t, N>*, and its value can be retrieved by using *::value* after the algorithm. Since *size_t* is an *unsigned int*, if a signed type is needed, *size_t* can simply be changed to *int*. However, in most cases, unsigned is enough.
+
+Also note that the algorithms *type_to_value* and *value_to_type* can be used to transform type lists (lists of std::integral_constant<>) to value lists and vice versa. Thus a value list can be quickly transformed into a type list, and all type list algorithms can then be applied. The result can then be transformed back into a value list.
+
 
 
 ### Example for Testing Properties
@@ -234,6 +237,30 @@ An exampe for a value list algorithm is given by *Nth_value*, which retrieves th
       "The implementation of Nth_value is bad");
 
 The trick here is to turn a value list into a type list by wrapping the values into types *std::integral_constant<>* (using the parameter pack), and then apply the *Nth_type* algorithm.
+
+An example for a meta algorithm is given by computing the sum of squares of a value list.
+
+    using vl = vtll::value_list<1, 2, 3, 4>;
+
+    template<typename T>
+    struct sqr {
+    	using type = std::integral_constant<size_t, T::value * T::value>;
+    };
+
+    using sum_squares = vtll::sum< vtll::function< vtll::value_to_type<vl>, sqr> >;
+    static_assert( sum_squares::value == 30);
+
+In this example, the value list is first transformed into a type list, then the sqr function is applied, then all list elements are summed up. The result in this case is *std::integral_constant<size_t,30>*. Alternatively, the squaring can be done on a value list directly:
+
+    template<size_t I>
+    struct sqr2 {
+    	using type = std::integral_constant<size_t, I*I>;
+    };
+
+    using sum_squares2 = vtll::sum< vtll::function_value< sqr2, 1, 2, 3, 4 > >;
+    static_assert(sum_squares2::value == 30);
+
+Again, the result is *std::integral_constant<size_t,30>*.
 
 
 ### Static For Loop

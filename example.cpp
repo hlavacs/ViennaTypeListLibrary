@@ -90,6 +90,25 @@ struct VecsEntity {
 	//....
 };
 
+using vl = vtll::value_list<1, 2, 3, 4>;
+
+template<typename T>
+struct sqr {
+	using type = std::integral_constant<size_t, T::value * T::value>;
+};
+
+using sum_squares = vtll::sum< vtll::function< vtll::value_to_type<vl>, sqr> >;
+static_assert( sum_squares::value == 30);
+
+
+template<size_t I>
+struct sqr2 {
+	using type = std::integral_constant<size_t, I*I>;
+};
+
+using sum_squares2 = vtll::sum< vtll::function_value< sqr2, 1, 2, 3, 4 > >;
+static_assert(sum_squares2::value == 30);
+
 
 //...
 
