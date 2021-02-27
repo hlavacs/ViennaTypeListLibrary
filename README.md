@@ -36,6 +36,7 @@ VTLL contains the following structs and algorithms:
 * *erase_Nth*: erase the Nth element of a list
 * *sum*: compute the sum of a list of std::integral_constant<size_t, I>
 * *function*: compute function on list of std::integral_constant<size_t, I>
+* *map*: find a type key in a map, i.e. a list of type key - type value pairs, and retrieve its type value, or a default type
 * *N_tuple*: make a tuple containing a type T N times
 * *static_for*: with this compile time for loop you can loop over any tuple, type list, or variadic argument list
 
