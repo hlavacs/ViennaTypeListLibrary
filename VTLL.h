@@ -648,6 +648,27 @@ namespace vtll {
 	static_assert(std::is_same_v< map<detail::test_map, int, float >, char >, "The implementation of map is bad");
 	static_assert(std::is_same_v< map<detail::test_map, char, float >, float >, "The implementation of map is bad");
 
+
+	//-------------------------------------------------------------------------
+	//apply_map: apply a list of keys to a map, get the list of their values, or defaults if the keys are not found
+
+	namespace detail {
+		template<typename Map, typename Keys, typename Default>
+		struct apply_map_impl;
+
+		template<typename Map, template<typename...> typename Keys, typename... Ks, typename Default>
+		struct apply_map_impl<Map, Keys<Ks...>, Default> {
+			using type = vtll::type_list< vtll::map<Map, Ks, Default>... >;
+		};
+	}
+
+	template<typename Map, typename Keys, typename Default>
+	using apply_map = typename detail::apply_map_impl<Map, Keys, Default>::type;
+
+	static_assert(
+		std::is_same_v< apply_map<detail::test_map, type_list<int, float, char>, char >, type_list<char, double, char> >, 
+		"The implementation of apply_map is bad");
+
 	//-------------------------------------------------------------------------
 	//static for: with this compile time for loop you can loop over any tuple, type list, or variadic argument list
 
