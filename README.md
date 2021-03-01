@@ -305,6 +305,9 @@ In a more complex example we want to define default values for different entity 
 
 Entities are now type lists of such components:
 
+    template <typename... Ts>
+    struct VeEntityType {};
+
     //declare entities
     using VeEntityTypeNode = VeEntityType<VeComponentName, VeComponentPosition, VeComponentOrientation, VeComponentTransform>;
     using VeEntityTypeDraw = VeEntityType<VeComponentName, VeComponentMaterial, VeComponentGeometry>;
@@ -320,7 +323,7 @@ The list *VeEntityTypeList* stores all existing entities:
       // ,...
     >;
 
-We now store entities and their components is a data structure that is a list of segments. Since the number of entities needed can vary drastically, we need some way to define default values for the segement sizes and the maximum number of each entity type. For this case we define a *map*, including a default default value:
+We now store entities and their components in a data structure that is a list of segments. Since the number of entities needed can vary drastically, we need some way to define default values for the segment sizes and the maximum number of each entity type. For this case we define a *map*, i.e., a type list of key-value pairs, including a "default default" value:
 
     using VeTableSizeDefault = vtll::value_list< 10, 16 >; //default default value
 
@@ -336,8 +339,8 @@ The numbers in the value_list<A,B> are powers of 2, the default values are thus 
     template<typename E = void>
     class VecsRegistry : public VecsRegistryBaseClass {
 
-      static const size_t c_segment_size	= vtll::front_value< vtll::map< VecsTableSizeMap, E, VeTableSizeDefault > >::value;
-  		static const size_t c_max_size		  = vtll::back_value<  vtll::map< VecsTableSizeMap, E, VeTableSizeDefault > >::value;
+      static const size_t c_segment_size = vtll::front_value< vtll::map< VecsTableSizeMap, E, VeTableSizeDefault > >::value;
+      static const size_t c_max_size     = vtll::back_value<  vtll::map< VecsTableSizeMap, E, VeTableSizeDefault > >::value;
 
     public:
       //use either a given value or the default value from the map
@@ -368,7 +371,7 @@ This gives us a list of value lists, which we can turn into type lists using *vt
 
   	using VecsTableMaxSizes = vtll::transform < vtll::apply_map<VecsTableSizeMap, VecsEntityTypeList, VeTableSizeDefault>, vtll::value_to_type>;
 
-We get a list with the second value using *vtll::transform< VecsTableMaxSizes, vtll::back >*, for which we apply the *left_shift_1* function to get the powers of two. Finally we apply the *vtll::sum<>* function to summ up the numbers:
+We get a list with the second value using *vtll::transform< VecsTableMaxSizes, vtll::back >*, for which we apply the *left_shift_1* function to get the powers of two. Finally we apply the *vtll::sum<>* function to sum up the numbers:
 
   	using VecsTableMaxSize = vtll::sum< vtll::function< vtll::transform< VecsTableMaxSizes, vtll::back >, left_shift_1 > >;
 
