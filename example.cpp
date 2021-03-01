@@ -6,6 +6,10 @@
 
 //the following examples are lifted and adapted from the Vienna Entity Component System (VECS)
 
+struct VeComponentName {
+	std::string m_name;
+};
+
 struct VeComponentPosition {
 	float x,y,z;
 };
@@ -29,7 +33,8 @@ struct VeComponentAnimation {
 };
 
 using VeComponentTypeList = vtll::type_list<
-	VeComponentPosition
+	 VeComponentName
+	, VeComponentPosition
 	, VeComponentOrientation
 	, VeComponentMaterial
 	, VeComponentGeometry
@@ -43,14 +48,14 @@ using VeComponentPtr = vtll::to_variant<vtll::to_ptr<VeComponentTypeList>>;
 template <typename... Ts>
 struct VeEntityType {};
 
-using VeEntityNode = VeEntityType<VeComponentPosition, VeComponentOrientation>;
-using VeEntityDraw = VeEntityType<VeComponentMaterial, VeComponentGeometry>;
-using VeEntityAnimation = VeEntityType<VeComponentAnimation>;
+using VeEntityTypeNode = VeEntityType<VeComponentName, VeComponentPosition, VeComponentOrientation>;
+using VeEntityTypeDraw = VeEntityType<VeComponentName, VeComponentMaterial, VeComponentGeometry>;
+using VeEntityTypeAnimation = VeEntityType<VeComponentName, VeComponentAnimation>;
 
 using VecsEntityTypeList = vtll::type_list<
-	VeEntityNode
-	, VeEntityDraw
-	, VeEntityAnimation
+	VeEntityTypeNode
+	, VeEntityTypeDraw
+	, VeEntityTypeAnimation
 	// ,... 
 >;
 
@@ -64,10 +69,11 @@ struct VecsHandle {
 
 
 template <typename E>
-struct VecsEntity {
+class VecsEntity {
 	using tuple_type = vtll::to_tuple<E>;
 	VecsHandle	m_handle;
 	tuple_type	m_component_data;
+public:
 
 	VecsEntity(const VecsHandle& h, const tuple_type& tup) noexcept : m_handle{ h }, m_component_data{ tup } {};
 
@@ -108,6 +114,52 @@ struct sqr2 {
 
 using sum_squares2 = vtll::sum< vtll::function_value< sqr2, 1, 2, 3, 4 > >;
 static_assert(sum_squares2::value == 30);
+
+
+//---------------------------------------------------------------------------
+
+
+using VecsTableSizeDefault = vtll::value_list< 10, 16 >; //default default value
+
+using VecsTableSizeMap = vtll::type_list<
+	vtll::type_list< VeEntityTypeNode, vtll::value_list< 12, 20 > >
+	, vtll::type_list< VeEntityTypeDraw, vtll::value_list< 12, 20 > >
+	, vtll::type_list< VeEntityTypeAnimation, vtll::value_list< 8, 10 > >
+	//, ...
+>;
+
+template<typename T>
+struct left_shift_1 {
+	using type = std::integral_constant<size_t, 1 << T::value>;
+};
+
+using VecsTableMaxSizes = vtll::transform < vtll::apply_map<VecsTableSizeMap, VecsEntityTypeList, VecsTableSizeDefault>, vtll::value_to_type>;
+
+using VecsTableMaxSize = vtll::sum< vtll::function< vtll::transform< VecsTableMaxSizes, vtll::back >, left_shift_1 > >;
+
+
+class VecsRegistryBaseClass {
+public:
+	VecsRegistryBaseClass(size_t r = VecsTableMaxSize::value) {};
+
+	//...
+};
+
+
+template<typename E = void>
+class VecsRegistry : public VecsRegistryBaseClass {
+
+	static const size_t c_segment_size = vtll::front_value< vtll::map< VecsTableSizeMap, E, VecsTableSizeDefault > >::value;
+	static const size_t c_max_size = vtll::back_value<  vtll::map< VecsTableSizeMap, E, VecsTableSizeDefault > >::value;
+
+public:
+	//use either a given value or the default value from the map
+	//if there is not default value in the map, use the default default value
+	VecsRegistry(size_t r = 1 << c_max_size) noexcept : VecsRegistryBaseClass() { };//VecsComponentTable<E>{r}; };
+	//...
+
+};
+
 
 
 //...

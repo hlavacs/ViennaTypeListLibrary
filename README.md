@@ -288,6 +288,101 @@ The loop requires a \<BEGIN\> and an \<END\> integer number, then the lambda fun
     2 bool
     3 float
 
+
+### A More Complex Example: Type Dependent Default values
+
+In a more complex example we want to define default values for different entity types. An entity is a collection of components:
+
+    //declare components
+    struct VeComponentName {
+  		std::string m_name;
+  	};
+
+    struct VeComponentPosition {
+        glm::vec3 m_position;
+    };
+    //...
+
+Entities are now type lists of such components:
+
+    //declare entities
+    using VeEntityTypeNode = VeEntityType<VeComponentName, VeComponentPosition, VeComponentOrientation, VeComponentTransform>;
+    using VeEntityTypeDraw = VeEntityType<VeComponentName, VeComponentMaterial, VeComponentGeometry>;
+    using VeEntityTypeAnimation = VeEntityType<VeComponentName, VeComponentAnimation>;
+    //...
+
+The list *VeEntityTypeList* stores all existing entities:
+
+    using VeEntityTypeList = vtll::type_list<
+        VeEntityTypeNode
+      , VeEntityTypeDraw
+      , VeEntityTypeAnimation
+      // ,...
+    >;
+
+We now store entities and their components is a data structure that is a list of segments. Since the number of entities needed can vary drastically, we need some way to define default values for the segement sizes and the maximum number of each entity type. For this case we define a *map*, including a default default value:
+
+    using VeTableSizeDefault = vtll::value_list< 10, 16 >; //default default value
+
+    using VeTableSizeMap = vtll::type_list<
+        vtll::type_list< VeEntityTypeNode,		  vtll::value_list< 12, 20 > >
+      , vtll::type_list< VeEntityTypeDraw,		  vtll::value_list< 12, 20 > >
+      , vtll::type_list< VeEntityTypeAnimation,	vtll::value_list< 8, 10 > >
+      //, ...
+    >;
+
+The numbers in the value_list<A,B> are powers of 2, the default values are thus segment size = 2^A, and max number = 2^B. This can easily be computed with the left shift operator *<<*, i.e., segm size = 1 << A and max num = 1 << B:
+
+    template<typename E = void>
+    class VecsRegistry : public VecsRegistryBaseClass {
+
+      static const size_t c_segment_size	= vtll::front_value< vtll::map< VecsTableSizeMap, E, VeTableSizeDefault > >::value;
+  		static const size_t c_max_size		  = vtll::back_value<  vtll::map< VecsTableSizeMap, E, VeTableSizeDefault > >::value;
+
+    public:
+      //use either a given value or the default value from the map
+      //if there is not default value in the map, use the default default value
+      VecsRegistry(size_t r = 1 << c_max_size) noexcept : VecsRegistryBaseClass() { VecsComponentTable<E>{r}; };
+      //...
+
+    };
+
+For a given template entity type *E*, the command *vtll::map< VecsTableSizeMap, E, VeTableSizeDefault >* retrieves the value list from the map. If there is no entry in the map, then the default default value is returned. For the segment size we need the first value which is returned using *vtll::front_value<>*, the maximum size is retrieved using *vtll::back_value<>*. We can use e.g. the max value as default size in the constructor of the class:
+
+    //use either a given value or the default value from the map
+    //if there is not default value in the map, use the default default value
+    VecsRegistry(size_t r = 1 << c_max_size) noexcept : VecsRegistryBaseClass() { VecsComponentTable<E>{r}; };
+
+Additionally we want the sum of all max sizes to size a list of all entities regardless of their type. So we want to sum up all 1 << c_max_size for all entity types. For turning the exponent into a size we need a function *left_shift_1<exponent>* to do this:
+
+    template<typename T>
+  	struct left_shift_1 {
+  		using type = std::integral_constant<size_t, 1 << T::value>;
+  	};
+
+Also we want a list of all max sizes, which we get through
+
+    vtll::apply_map<VecsTableSizeMap, VecsEntityTypeList, VeTableSizeDefault>
+
+This gives us a list of value lists, which we can turn into type lists using *vtll::transform < ..., vtll::value_to_type >*:
+
+  	using VecsTableMaxSizes = vtll::transform < vtll::apply_map<VecsTableSizeMap, VecsEntityTypeList, VeTableSizeDefault>, vtll::value_to_type>;
+
+We get a list with the second value using *vtll::transform< VecsTableMaxSizes, vtll::back >*, for which we apply the *left_shift_1* function to get the powers of two. Finally we apply the *vtll::sum<>* function to summ up the numbers:
+
+  	using VecsTableMaxSize = vtll::sum< vtll::function< vtll::transform< VecsTableMaxSizes, vtll::back >, left_shift_1 > >;
+
+This is already a number and we can now use this as default value for storing a list of all entities:
+
+    class VecsRegistryBaseClass {
+
+    public:
+      VecsRegistryBaseClass( size_t r = VecsTableMaxSize::value ) noexcept; //use as default value
+
+    //...
+    };
+
+
 ## Implementation
 
 Implementations use mostly either recursions, parameter packs and/or C++ folding expressions. Some use special command like tuple commands or sizeof...
