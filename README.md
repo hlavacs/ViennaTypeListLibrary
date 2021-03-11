@@ -24,6 +24,7 @@ VTLL contains the following structs and algorithms:
 * *transform*: transform list<types> into list<Function<types>>
 * *transform_size_t*: transform list<types> into list<Function<types,size_t>>, e.g. for using std::array<T,size_t>
 * *is_same*: test if a list contains the same types as types of a variadic parameter pack
+* *is_pow2*: test whether a std::integral_constant<size_t, I> is a power of 2
 * *transfer*: transfer a list of types1 into a list of types2
 * *substitute*: substitute a type list TYPE with another list type
 * *has_type*: check whether a type list contains a type
@@ -63,6 +64,7 @@ VTLL contains the following structs and algorithms:
 * *front_value*: get the first value from a value list
 * *back_value*: get the last value from a value list
 * *sum_value*: compute the sum of a list of size_t s
+* *is_pow2_value*: test whether a value is a power of 2
 * *function_value*: compute function on list of size_t s
 
 

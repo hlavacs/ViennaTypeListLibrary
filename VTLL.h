@@ -323,6 +323,26 @@ namespace vtll {
 	static_assert( is_same<type_list<double, int>, double, int>::value, "The implementation of is_same is bad");
 
 	//-------------------------------------------------------------------------
+	//is_pow2: test whether a std::integral_constant<size_t, I> is a power of 2
+
+	namespace detail {
+		template<typename T, uint64_t... Is>
+		constexpr auto is_pow2_impl(std::index_sequence<Is...>) {
+			return ( (T::value == (1ULL << Is)) || ...);
+		}
+	}
+
+	template <typename T>
+	constexpr auto is_pow2() {
+		return detail::is_pow2_impl<T>(std::make_integer_sequence<size_t, 64>{ });
+	}
+
+	static_assert(is_pow2<std::integral_constant<size_t, 64>>(), "The implementation of is_pow2 is bad");
+	static_assert(is_pow2<std::integral_constant<size_t, 1 << 20>>(), "The implementation of is_pow2 is bad");
+	static_assert(!is_pow2<std::integral_constant<size_t, (1 << 20) + 1>>(), "The implementation of is_pow2 is bad");
+	static_assert(!is_pow2<std::integral_constant<size_t, 63>>(), "The implementation of is_pow2 is bad");
+
+	//-------------------------------------------------------------------------
 	//has_type: check whether a type list contains a type
 
 	namespace detail {
@@ -1019,6 +1039,17 @@ namespace vtll {
 
 	static_assert(std::is_same_v< sum_value< 1, 2, 3>, std::integral_constant<size_t, 6> >,
 		"The implementation of sum_value is bad");
+
+	//-------------------------------------------------------------------------
+	//is_pow2_value: test whether a value is a power of 2
+
+	template <size_t I>
+	constexpr auto is_pow2_value() {
+		return is_pow2<std::integral_constant<size_t, I>>();
+	}
+
+	static_assert(is_pow2_value<64>(), "The implementation of is_pow2 is bad");
+	static_assert(!is_pow2_value<63>(), "The implementation of is_pow2 is bad");
 
 
 	//-------------------------------------------------------------------------
