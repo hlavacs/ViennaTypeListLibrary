@@ -10,9 +10,17 @@ For building the example project for MSVC just run the msvc.bat batch file.
 ## Algorithms
 VTLL contains the following structs and algorithms:
 
-### Type List Algorithms
+### Conversion Algorithms
 
 * *type_list* and *detail::type_list2*: structures that can be used to hold lists of types. Of course, any other similarly templated struct can be used as type list.
+* *value_list*: a list that stores size_t values
+* *type_to_value*: turn a list of std::integral_constant<> into a value list
+* *value_to_type*: turn a value list into a list of std::integral_constant<>
+* *index_to_value*: turn a std::index_sequence into a value_list
+* *value_to_index*: turn a value_list into a std::index_sequence
+
+### Type List Algorithms
+
 * *size*: size of a type list
 * *Nth_type*: get the Nth element from a type list
 * *front*: first element of a type list
@@ -25,6 +33,7 @@ VTLL contains the following structs and algorithms:
 * *transform_size_t*: transform list<types> into list<Function<types,size_t>>, e.g. for using std::array<T,size_t>
 * *is_same*: test if a list contains the same types as types of a variadic parameter pack
 * *is_pow2*: test whether a std::integral_constant<size_t, I> is a power of 2
+* *smallest_pow2_larger_eq*: find smallest power of 2 larger or equal than a given number
 * *transfer*: transfer a list of types1 into a list of types2
 * *substitute*: substitute a type list TYPE with another list type
 * *has_type*: check whether a type list contains a type
@@ -53,12 +62,8 @@ VTLL contains the following structs and algorithms:
 * *sub_tuple*: extract a subtuple from a tuple
 * *sub_ref_tuple*: extract a subtuple of references from a tuple
 
-
 ### Value List Algorithms
 
-* *value_list*: a list that stores size_t values
-* *type_to_value*: turn a list of std::integral_constant<> into a value list
-* *value_to_type*: turn a value list into a list of std::integral_constant<>
 * *size_value*: get the size of a value list
 * *Nth_value*: get the Nth value from a value list
 * *front_value*: get the first value from a value list
