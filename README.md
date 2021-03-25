@@ -56,7 +56,8 @@ VTLL contains the following structs and algorithms:
 ### Tuple Algorithms
 
 * *to_tuple*: turn a list into a tuple
-* *to_ref_tuple*: turn a list into a tuple of reference types. When creating such tuples, use std::ref as a wrapper for the elements!
+* *to_ref_tuple*: turn a list into a tuple of reference types. When creating such tuples, use std::tie or std::forward_as_tuple
+* *to_rvref_tuple*: turn a list into a tuple of prvalue reference types. When creating such tuples, use std::move, std::tie or std::forward_as_tuple
 * *to_ptr_tuple*: turn a list into a tuple of pointer types
 * *is_same_tuple*: test whether two tuples are the same
 * *sub_tuple*: extract a subtuple from a tuple

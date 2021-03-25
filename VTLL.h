@@ -787,7 +787,7 @@ namespace vtll {
 		"The implementation of min is bad");
 
 	//-------------------------------------------------------------------------
-	//smallest_pow2_larger: find smallest power of 2 larger or equal than a given number
+	//smallest_pow2_larger_eq: find smallest power of 2 larger or equal than a given number
 
 	namespace detail {
 		template<typename P2, typename T>
@@ -968,6 +968,31 @@ namespace vtll {
 
 
 	//-------------------------------------------------------------------------
+	//-------------------------------------------------------------------------
+	//to_rvref_tuple: turn a list into a tuple of reference types. when creating such tuples, use std::ref as a wrapper for the elements!
+
+	namespace detail {
+		template<typename Seq>
+		struct to_rvref_tuple_impl;
+
+		template<template <typename...> class Seq>
+		struct to_rvref_tuple_impl<Seq<>> {
+			using type = std::tuple<>;
+		};
+
+		template<template <typename...> class Seq, typename... Ts>
+		struct to_rvref_tuple_impl<Seq<Ts...>> {
+			using type = std::tuple<Ts&&...>;
+		};
+	}
+	template <typename Seq>
+	using to_rvref_tuple = typename detail::to_rvref_tuple_impl<Seq>::type;
+
+	static_assert(
+		std::is_same_v< to_rvref_tuple<type_list<double, int>>, std::tuple<double&&, int&&> >,
+		"The implementation of to_rvref_tuple is bad");
+
+
 	//to_ptr_tuple: turn a list into a tuple of pointer types
 
 	namespace detail {
