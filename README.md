@@ -37,6 +37,7 @@ VTLL contains the following structs and algorithms:
 * *transfer*: transfer a list of types1 into a list of types2
 * *substitute*: substitute a type list TYPE with another list type
 * *has_type*: check whether a type list contains a type
+* *have_type*: check whether all elements of a list of lists contain an element
 * *has_any_type*: check whether a type list contains ANY type of a second type list
 * *has_all_types*: check whether a type list contains ALL types of a second type list
 * *filter_have_type*: keep only those type lists Ts<...> that have a specific type C as member
@@ -51,6 +52,9 @@ VTLL contains the following structs and algorithms:
 * *map*: find a type key in a map, i.e. a list of type key - type value pairs, and retrieve its type value, or a default type if not found
 * *apply_map*: apply a list of keys to a map, get the list of their values, or defaults if the keys are not found
 * *N_tuple*: make a tuple containing a type T N times
+* *remove_duplicates*: remove duplicates from a list
+* *flatten*: turn a list LL of lists into one list that holds all elements from LL
+* *intersection*: return a list of those elements that are in all given lists
 * *static_for*: with this compile time for loop you can loop over any tuple, type list, or variadic argument list
 
 ### Tuple Algorithms
