@@ -985,7 +985,7 @@ namespace vtll {
 		struct intersection_impl<Seq<Ts...>, Seq<E, Es...>> {
 			using type = typename std::conditional_t<	have_type<Seq<Ts...>, E>::value
 														, cat< type_list<E>, typename intersection_impl<Seq<Ts...>, Seq<Es...>>::type >
-														, cat< type_list<> , typename intersection_impl<Seq<Ts...>, Seq<Es...>>::type >
+														, typename intersection_impl<Seq<Ts...>, Seq<Es...>>::type
 													>;
 		};
 	}
