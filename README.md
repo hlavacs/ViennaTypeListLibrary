@@ -44,6 +44,8 @@ VTLL contains the following structs and algorithms:
 * *filter_have_type*: keep only those type lists Ts<...> that have a specific type C as member
 * *filter_have_all_types*: keep only those type lists Ts<...> that have ALL specified types Cs from another list Seq2<Cs...>
 * *filter_have_any_type*: keep only those type lists Ts<...> that have ANY specified type Cs from another list Seq2<Cs...> as member
+* *unique*: test whether the elements in a type list are all unique
+* *are_unique*: test whether all given lists contain only unique elements
 * *erase_type*: erase a type C from a type list
 * *erase_Nth*: erase the Nth element of a list
 * *sum*: compute the sum of a list of std::integral_constant<size_t, I>
