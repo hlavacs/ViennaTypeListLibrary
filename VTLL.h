@@ -243,10 +243,10 @@ namespace vtll {
 		"The implementation of index_of is bad");
 
 	//-------------------------------------------------------------------------
-	//cat: concatenate two type lists to one big type list, the result is of the first list type
+	//cat: concatenate type lists to one big type list, the result is of the first list type
 
 	namespace detail {
-		template <typename Seq1, typename Seq2>
+		template <typename... Seq>
 		struct cat_impl;
 
 		template <template <typename...> typename Seq1, template <typename...> typename Seq2>
@@ -263,13 +263,23 @@ namespace vtll {
 		struct cat_impl<Seq1<Ts1...>, Seq2<T, Ts2...>> {
 			using type = typename cat_impl<Seq1<Ts1..., T>, Seq2<Ts2...>>::type;
 		};
+
+		template <typename Seq1, typename Seq2, typename... Seq>
+		struct cat_impl<Seq1, Seq2, Seq...> {
+			using type0 = typename cat_impl<Seq1, Seq2>::type;
+			using type = typename cat_impl<type0, Seq...>::type;
+		};
 	}
 
-	template <typename Seq1, typename Seq2>
-	using cat = typename detail::cat_impl<Seq1, Seq2>::type;
+	template <typename... Seq>
+	using cat = typename detail::cat_impl<Seq...>::type;
 
 	static_assert(
 		std::is_same_v< cat< type_list<double, int>, detail::type_list2<char, float> >, type_list<double, int, char, float> >,
+		"The implementation of cat is bad");
+
+	static_assert(
+		std::is_same_v< cat< type_list<double, int>, type_list<char, float>, type_list<int, float> >, type_list<double, int, char, float, int, float> >,
 		"The implementation of cat is bad");
 
 	//-------------------------------------------------------------------------

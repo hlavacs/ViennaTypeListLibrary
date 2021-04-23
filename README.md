@@ -26,7 +26,7 @@ VTLL contains the following structs and algorithms:
 * *front*: first element of a type list
 * *back*: get the last element from a list
 * *index_of*: index of first occurrence of a type within a type list
-* *cat*: concatenate two type lists to one big type list, the result is of the first list type
+* *cat*: concatenate type lists to one big type list, the result is of the first list type
 * *to_ref*: turn list elements into references
 * *to_ptr*: turn list elements into pointers
 * *to_variant*: make a summary variant type of all elements in a list
