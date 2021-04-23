@@ -371,6 +371,50 @@ namespace vtll {
 		"The implementation of transform_size_t is bad");
 
 	//-------------------------------------------------------------------------
+	//transform_front: transform list<types> + T into list<Function<T,types>>
+
+	namespace detail {
+		template<typename List, template<typename, typename> typename Fun, typename T>
+		struct transform_front_impl;
+
+		template<template <typename...> typename Seq, typename... Ts, template<typename, typename> typename Fun, typename T>
+		struct transform_front_impl<Seq<Ts...>, Fun, T> {
+			using type = Seq<Fun<T, Ts>...>;
+		};
+	}
+	template <typename Seq, template<typename, typename> typename Fun, typename T>
+	using transform_front = typename detail::transform_front_impl<Seq, Fun, T>::type;
+
+	static_assert(
+		std::is_same_v< 
+			  transform_front< type_list< type_list<double, int>, type_list<float, char>, type_list<int, float> >, cat, type_list<char> >
+			, type_list< type_list<char, double, int>, type_list<char, float, char>, type_list<char, int, float> >
+		> 
+		,	"The implementation of transform_front is bad");
+
+	//-------------------------------------------------------------------------
+	//transform_back: transform list<types> + T into list<Function<types,T>>
+
+	namespace detail {
+		template<typename List, template<typename, typename> typename Fun, typename T>
+		struct transform_back_impl;
+
+		template<template <typename...> typename Seq, typename... Ts, template<typename, typename> typename Fun, typename T>
+		struct transform_back_impl<Seq<Ts...>, Fun, T> {
+			using type = Seq<Fun<Ts,T>...>;
+		};
+	}
+	template <typename Seq, template<typename, typename> typename Fun, typename T>
+	using transform_back = typename detail::transform_back_impl<Seq, Fun, T>::type;
+
+	static_assert(
+		std::is_same_v<
+		transform_back< type_list< type_list<double, int>, type_list<float, char>, type_list<int, float> >, cat, type_list<char> >
+		, type_list< type_list<double, int, char>, type_list<float, char, char>, type_list<int, float, char> >
+		>
+		, "The implementation of transform_back is bad");
+
+	//-------------------------------------------------------------------------
 	//substitute: substitute a type list TYPE with another list type
 
 	namespace detail {
@@ -1076,6 +1120,42 @@ namespace vtll {
 		"The implementation of intersection is bad");
 
 	//-------------------------------------------------------------------------
+	//power_set: turn a set into a set of all subsets
+
+	namespace detail {
+		template <typename Seq>
+		struct power_set_impl;
+
+		template<template<typename...> typename Seq>
+		struct power_set_impl<Seq<>> {
+			using type = type_list<type_list<>>;
+		};
+
+		template<template<typename...> typename Seq, typename T>
+		struct power_set_impl<Seq<T>> {
+			using type = type_list<type_list<>, type_list<T>>;
+		};
+
+		template < template<typename...> typename Seq, typename... Ts, typename T>
+		struct power_set_impl<Seq<T, Ts...>> {
+			using ps = typename power_set_impl<type_list<Ts...>>::type;
+			using type = cat< ps, transform_front< ps, cat, type_list<T> > >;
+		};
+	}
+
+	template <typename Seq>
+	using power_set = typename detail::power_set_impl<Seq>::type;
+
+	static_assert(
+		std::is_same_v< power_set< type_list<char> >, type_list< type_list<>, type_list<char> >
+		>, "The implementation of power_set is bad");
+
+	static_assert(
+		std::is_same_v< power_set< type_list<int, char> >
+		, type_list< type_list<>, type_list<char>, type_list<int>, type_list<int, char>>
+		>, "The implementation of power_set is bad");
+
+	//-------------------------------------------------------------------------
 	//static for: with this compile time for loop you can loop over any tuple, type list, or variadic argument list
 
 	namespace detail {
@@ -1353,7 +1433,6 @@ namespace vtll {
 
 	static_assert(is_pow2_value<64>(), "The implementation of is_pow2 is bad");
 	static_assert(!is_pow2_value<63>(), "The implementation of is_pow2 is bad");
-
 
 	//-------------------------------------------------------------------------
 	//function_value: compute function on a list of size_t s

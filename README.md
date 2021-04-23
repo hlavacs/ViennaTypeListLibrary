@@ -32,6 +32,8 @@ VTLL contains the following structs and algorithms:
 * *to_variant*: make a summary variant type of all elements in a list
 * *transform*: transform list<types> into list<Function<types>>
 * *transform_size_t*: transform list<types> into list<Function<types,size_t>>, e.g. for using std::array<T,size_t>
+* *transform_front*: transform list<types> + T into list<Function<T,types>>
+* *transform_back*: transform list<types> + T into list<Function<types,T>>
 * *is_same*: test if a list contains the same types as types of a variadic parameter pack
 * *is_pow2*: test whether a std::integral_constant<size_t, I> is a power of 2
 * *smallest_pow2_larger_eq*: find smallest power of 2 larger or equal than a given number
@@ -58,6 +60,7 @@ VTLL contains the following structs and algorithms:
 * *remove_duplicates*: remove duplicates from a list
 * *flatten*: turn a list LL of lists into one list that holds all elements from LL
 * *intersection*: return a list of those elements that are in all given lists
+* *power_set*: turn a set into a set of all subsets
 * *static_for*: with this compile time for loop you can loop over any tuple, type list, or variadic argument list
 
 ### Tuple Algorithms
