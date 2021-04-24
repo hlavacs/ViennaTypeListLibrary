@@ -12,7 +12,7 @@ VTLL contains the following structs and algorithms:
 
 ### Conversion Algorithms
 
-* *type_list* and *detail::type_list2*: structures that can be used to hold lists of types. Of course, any other similarly templated struct can be used as type list.
+* *type_list* and *tl*: structures that can be used to hold lists of types. Of course, any other similarly templated struct can be used as type list.
 * *value_list*: a list that stores size_t values
 * *type_to_value*: turn a list of std::integral_constant<> into a value list
 * *value_to_type*: turn a value list into a list of std::integral_constant<>
@@ -27,6 +27,7 @@ VTLL contains the following structs and algorithms:
 * *back*: get the last element from a list
 * *index_of*: index of first occurrence of a type within a type list
 * *cat*: concatenate type lists to one big type list, the result is of the first list type
+* *app*: append a parameter pack to a type list
 * *to_ref*: turn list elements into references
 * *to_ptr*: turn list elements into pointers
 * *to_variant*: make a summary variant type of all elements in a list
