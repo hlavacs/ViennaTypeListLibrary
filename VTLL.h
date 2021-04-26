@@ -1062,6 +1062,11 @@ namespace vtll {
 		template<typename Seq>
 		struct remove_duplicates_impl;
 
+		template<template<typename...> typename Seq>
+		struct remove_duplicates_impl<Seq<>> {
+			using type = Seq<>;
+		};
+
 		template<typename T, template<typename...> typename Seq>
 		struct remove_duplicates_impl<Seq<T>> {
 			using type = Seq<T>;
