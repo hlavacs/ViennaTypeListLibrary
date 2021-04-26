@@ -1098,6 +1098,11 @@ namespace vtll {
 		template<typename Seq>
 		struct flatten_impl;
 
+		template<template<typename...> typename Seq>
+		struct flatten_impl<Seq<>> {
+			using type = type_list<>;
+		};
+
 		template<typename T, template<typename...> typename Seq>
 		struct flatten_impl<Seq<T>> {
 			using type = T;
@@ -1113,7 +1118,7 @@ namespace vtll {
 	using flatten = typename detail::flatten_impl<Seq>::type;
 
 	static_assert(
-		std::is_same_v< flatten< type_list<type_list<int, float>, type_list<int, char>, type_list<double>> >
+		std::is_same_v< flatten< type_list<type_list<int, float>, type_list<int, char>, type_list<double>, type_list<> > >
 						, type_list<int, float, int, char, double> >,
 		"The implementation of flatten is bad");
 
