@@ -44,6 +44,7 @@ VTLL contains the following structs and algorithms:
 * *have_type*: check whether all elements of a list of lists contain an element
 * *has_any_type*: check whether a type list contains ANY type of a second type list
 * *has_all_types*: check whether a type list contains ALL types of a second type list
+* *filter_remove_types*: remove types from a list, that are also part of another list
 * *filter_have_type*: keep only those type lists Ts<...> that have a specific type C as member
 * *filter_have_all_types*: keep only those type lists Ts<...> that have ALL specified types Cs from another list Seq2<Cs...>
 * *filter_have_any_type*: keep only those type lists Ts<...> that have ANY specified type Cs from another list Seq2<Cs...> as member
