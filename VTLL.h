@@ -155,7 +155,25 @@ namespace vtll {
 	//-------------------------------------------------------------------------
 	//type list algorithms
 
+	//-------------------------------------------------------------------------
+	//is_type_list: test if a template is a type list
 
+	namespace detail {
+		template <typename T>
+		struct is_type_list_impl : std::false_type {};
+
+		template <template <typename...> typename Seq, typename... Ts>
+		struct is_type_list_impl<Seq<Ts...>> : std::true_type {};
+
+		template <template <typename...> typename Seq>
+		struct is_type_list_impl<Seq<>> : std::true_type {};
+	}
+	template <typename T>
+	using is_type_list = detail::is_type_list_impl<T>;
+
+	static_assert(!is_type_list<int>::value, "The implementation of is_type_list is bad");
+	static_assert(is_type_list<type_list<double, char, bool, double>>::value, "The implementation of is_type_list is bad");
+	static_assert(is_type_list<type_list<>>::value, "The implementation of is_type_list is bad");
 
 	//-------------------------------------------------------------------------
 	//size: size of a type list
@@ -696,26 +714,26 @@ namespace vtll {
 
 	namespace detail {
 		template< typename Seq1, typename Seq2>
-		struct filter_remove_types_impl;
+		struct remove_types_impl;
 
 		template<template <typename...> typename Seq1, typename Seq2>
-		struct filter_remove_types_impl<Seq1<>, Seq2> {
+		struct remove_types_impl<Seq1<>, Seq2> {
 			using type = Seq1<>;
 		};
 
 		template<template <typename...> typename Seq1, typename T, typename... Ts, typename Seq2 >
-		struct filter_remove_types_impl<Seq1<T, Ts...>, Seq2> {
-			using rest = typename filter_remove_types_impl<Seq1<Ts...>, Seq2>::type;
+		struct remove_types_impl<Seq1<T, Ts...>, Seq2> {
+			using rest = typename remove_types_impl<Seq1<Ts...>, Seq2>::type;
 			using type = std::conditional_t< has_type<Seq2, T>::value, rest, cat< type_list<T>, rest > >;
 		};
 	}
 	template <typename Seq1, typename Seq2>
-	using filter_remove_types = typename detail::filter_remove_types_impl<Seq1, Seq2>::type;
+	using remove_types = typename detail::remove_types_impl<Seq1, Seq2>::type;
 
 	static_assert(std::is_same_v <
-		filter_remove_types < type_list<char, float, char, int, bool, double>, type_list < char, double > >
+		remove_types < type_list<char, float, char, int, bool, double>, type_list < char, double > >
 		, type_list<float, int, bool> >,
-		"The implementation of filter_remove_types is bad");
+		"The implementation of remove_types is bad");
 
 	//-------------------------------------------------------------------------
 	//filter_have_type: keep only those type lists Ts<...> that have a specific type C as member

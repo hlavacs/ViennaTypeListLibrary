@@ -21,6 +21,7 @@ VTLL contains the following structs and algorithms:
 
 ### Type List Algorithms
 
+* *is_type_list*: test if a template is a type list
 * *size*: size of a type list
 * *Nth_type*: get the Nth element from a type list
 * *front*: first element of a type list
