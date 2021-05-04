@@ -84,6 +84,8 @@ VTLL contains the following structs and algorithms:
 * *front_value*: get the first value from a value list
 * *back_value*: get the last value from a value list
 * *sum_value*: compute the sum of a list of size_t s
+* *cat_value*: concatenate value lists
+* *make_value_list*: make a value list going from 0 to N-1
 * *is_pow2_value*: test whether a value is a power of 2
 * *function_value*: compute function on list of size_t s
 
