@@ -39,6 +39,7 @@ VTLL contains the following structs and algorithms:
 * *is_same*: test if a list contains the same types as types of a variadic parameter pack
 * *is_pow2*: test whether a std::integral_constant<size_t, I> is a power of 2
 * *smallest_pow2_larger_eq*: find smallest power of 2 larger or equal than a given number
+* *index_largest_bit*: Find index of largest bit, starting with 1
 * *transfer*: transfer a list of types1 into a list of types2
 * *substitute*: substitute a type list TYPE with another list type
 * *has_type*: check whether a type list contains a type
