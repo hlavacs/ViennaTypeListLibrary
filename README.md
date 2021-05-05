@@ -75,7 +75,7 @@ VTLL contains the following structs and algorithms:
 * *to_ptr_tuple*: turn a list into a tuple of pointer types
 * *is_same_tuple*: test whether two tuples are the same
 * *sub_tuple*: extract a subtuple from a tuple
-* *sub_ref_tuple*: extract a subtuple of references from a tuple
+* *sub_ref_tuple*: extract a subtuple from a tuple of references
 
 ### Value List Algorithms
 
