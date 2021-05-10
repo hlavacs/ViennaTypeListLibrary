@@ -58,6 +58,7 @@ VTLL contains the following structs and algorithms:
 * *max*: compute the max of a list of std::integral_constant<size_t, I>
 * *min*: compute the min of a list of std::integral_constant<size_t, I>
 * *function*: compute function on list of std::integral_constant<size_t, I>
+* *function2*: compute function on list of std::integral_constant<size_t, I> which has one additional template parameter
 * *map*: find a type key in a map, i.e. a list of type key - type value pairs, and retrieve its type value, or a default type if not found
 * *apply_map*: apply a list of keys to a map, get the list of their values, or defaults if the keys are not found
 * *N_tuple*: make a tuple containing a type T N times
