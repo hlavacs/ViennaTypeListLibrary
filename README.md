@@ -79,6 +79,7 @@ VTLL contains the following structs and algorithms:
 * *is_same_tuple*: test whether two tuples are the same
 * *sub_tuple*: extract a subtuple from a tuple
 * *sub_ref_tuple*: extract a subtuple from a tuple of references
+* *subtype_tuple*: extract a subtuple from a tuple using types
 
 ### Value List Algorithms
 

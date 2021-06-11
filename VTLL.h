@@ -707,9 +707,14 @@ namespace vtll {
 		template<typename Seq1, typename Seq2>
 		struct has_all_types_impl;
 
+		template<template <typename...> typename Seq1, typename... Ts1, template <typename...> typename Seq2>
+		struct has_all_types_impl<Seq1<Ts1...>, Seq2<>> {
+			static const bool value = true;
+		};
+
 		template<template <typename...> typename Seq1, typename... Ts1, template <typename...> typename Seq2, typename... Ts2>
 		struct has_all_types_impl<Seq1<Ts1...>, Seq2<Ts2...>> {
-			static const bool value = (has_type<Seq1<Ts1...>, Ts2>::value && ...);
+			static const bool value = (has_type<Seq1<Ts1...>, Ts2>::value && ... && true);
 		};
 	}
 	template <typename Seq1, typename Seq2>
@@ -719,6 +724,7 @@ namespace vtll {
 
 	static_assert(has_all_types<type_list<double, int, char>, type_list<int, char>>::value, "The implementation of has_all_types is bad");
 	static_assert(!has_all_types<type_list<double, int, char>, type_list<bool, char>>::value, "The implementation of has_all_types is bad");
+	static_assert(has_all_types<type_list<double, int, char>, type_list<>>::value, "The implementation of has_all_types is bad");
 
 	//-------------------------------------------------------------------------
 	//filter_remove_types: remove types from a list, that are also part of another list
@@ -1331,11 +1337,13 @@ namespace vtll {
 	namespace detail {
 		void f() {
 			using list = type_list<int, double, bool, float >;
-			static_for< int, 0, size<list>::value >([&]<typename T, T I>(std::integral_constant<T,I> i) {
+
+			auto fun = [&]<typename T, T I>(std::integral_constant<T, I> i) {
 				using type = Nth_type<list, I>;
-				std::cout << i << " " << typeid(type).name() << std::endl; 
-				}
-			);
+				std::cout << i << " " << typeid(type).name() << std::endl;
+			};
+
+			static_for< int, 0, size<list>::value >(fun);
 		}
 	}
 
@@ -1445,13 +1453,13 @@ namespace vtll {
 
 	namespace detail {
 		template<typename ...T, size_t... I>
-		auto ptr_to_ref_tuple_detail(std::tuple<T...>& t, std::index_sequence<I...>) {
+		auto ptr_to_ref_tuple_detail(const std::tuple<T...>& t, std::index_sequence<I...>) {
 			return std::tie(*std::get<I>(t)...);
 		}
 	}
 
 	template<typename ...T>
-	auto ptr_to_ref_tuple(std::tuple<T...>& t) {
+	auto ptr_to_ref_tuple(const std::tuple<T...>& t) {
 		return detail::ptr_to_ref_tuple_detail<T...>(t, std::make_index_sequence<sizeof...(T)>{});
 	}
 
@@ -1464,7 +1472,7 @@ namespace vtll {
 	}
 
 	static_assert(
-		std::is_same_v< decltype(detail::ex1::tup2), std::tuple<int&,double&,char&> >,
+		std::is_same_v< decltype(detail::ex1::tup2), std::tuple<int&, double&, char&> >,
 		"The implementation of ptr_to_ref_tuple is bad");
 
 	//-------------------------------------------------------------------------
@@ -1539,6 +1547,24 @@ namespace vtll {
 		, "The implementation of sub_ref_tuple is bad");*/
 
 
+	//-------------------------------------------------------------------------
+	//subtype_tuple: extract a subtuple from a tuple using types
+
+	namespace detail {
+
+		template<typename Seq, typename T, size_t... Is>
+		constexpr auto subtype_tuple_impl(T&& tup, std::index_sequence<Is...>) {
+			return std::make_tuple(std::get<vtll::Nth_type<Seq,Is>>(tup)...);
+		}
+	}
+
+	template <typename Seq, typename T>
+	constexpr auto subtype_tuple(T&& tup) {
+		return detail::subtype_tuple_impl<Seq>(std::forward<T>(tup), std::make_integer_sequence<size_t, vtll::size<Seq>::value>{ });
+	}
+
+	static_assert(is_same_tuple(subtype_tuple<vtll::tl<int,char>>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple(1,'C'))
+		, "The implementation of subtype_tuple is bad");
 
 
 	//-------------------------------------------------------------------------
