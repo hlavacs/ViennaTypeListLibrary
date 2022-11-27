@@ -22,8 +22,33 @@
 
 ***********************************************************************************/
 
-
 namespace vtll {
+
+	/// <summary>
+	/// A strong type must be explicitly created, and cannot be created by implicit conversion.
+	/// </summary>
+	/// <typeparam name="T">Value type.</typeparam>
+	/// <typeparam name="D">Default value.</typeparam>
+	/// <typeparam name="P">Phantom parameter to make type unique.</typeparam>
+	template<typename T, auto D, int64_t P>
+	struct strong_type_t {
+		T value{ D };
+		strong_type_t() = default;
+		explicit strong_type_t(const T& v) noexcept { value = v; };
+		explicit strong_type_t(T&& v) noexcept { value = std::move(v); };
+		operator const T& () const { return value; }
+		operator T& () { return value; }
+		strong_type_t<T, D, P>& operator=(const T& v) noexcept { value = v; return *this; };
+		strong_type_t<T, D, P>& operator=(T&& v) noexcept { value = std::move(v); return *this; };
+		strong_type_t<T, D, P>& operator=(const strong_type_t<T, D, P>& v) noexcept { value = v.value; return *this; };
+		strong_type_t<T, D, P>& operator=(strong_type_t<T, D, P>&& v) noexcept { value = std::move(v.value); return *this; };
+		strong_type_t(const strong_type_t<T, D, P>& v) noexcept { value = v.value; };
+		strong_type_t(strong_type_t<T, D, P>&& v) noexcept { value = std::move(v.value); };
+		struct hash {
+			std::size_t operator()(const strong_type_t<T, D, P>& tag) const { return std::hash<T>()(tag.value); };
+		};
+	};
+
 
 	//type_list: example for a struct that can act as type list. Any such list can be used.
 
