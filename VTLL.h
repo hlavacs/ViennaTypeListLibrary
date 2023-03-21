@@ -1441,6 +1441,36 @@ namespace vtll {
 		"The implementation of remove_atomic is bad");
 
 
+	//--------------------------------------------------------------------------------------------
+	//type counter lifted from https://mc-deltat.github.io/articles/stateful-metaprogramming-cpp20
+	//a compile time counter starting from 0. Every time you put *counter<>* into your code, it is increased by 1. 
+
+	template<size_t N>
+	struct reader { friend auto counted_flag(reader<N>); };
+
+	template<size_t N>
+	struct setter {
+		friend auto counted_flag(reader<N>) {}
+		static constexpr size_t n = N;
+	};
+
+	template< auto Tag, size_t NextVal = 0 >
+	[[nodiscard]] consteval auto counter_impl() {
+		constexpr bool counted_past_value = requires(reader<NextVal> r) { counted_flag(r); };
+
+		if constexpr (counted_past_value) {
+			return counter_impl<Tag, NextVal + 1>();
+		}
+		else {
+			setter<NextVal> s;
+			return s.n;
+		}
+	}
+
+	template< auto Tag = [] {}, auto Val = counter_impl<Tag>() >
+	constexpr auto counter = Val;
+
+
 	//-------------------------------------------------------------------------
 	//tuple algorithms
 

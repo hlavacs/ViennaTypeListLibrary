@@ -71,6 +71,7 @@ VTLL contains the following structs and algorithms:
 * *static_for*: with this compile time for loop you can loop over any tuple, type list, or variadic argument list
 * *is_atomic*: test whether a type is std::atomic<T>
 * *remove_atomic*: change all types of a list from std::atomic<T> to T
+* *counter<>*: a compile time counter starting from 0. Every time you put *counter<>* into your code, it is increased by 1.
 
 ### Tuple Algorithms
 
