@@ -1388,6 +1388,58 @@ namespace vtll {
 	}
 
 
+	//-------------------------------------------------------------------------
+	//is_atomic: true if the provided type is atomic
+
+	template<typename T>
+	struct is_atomic : std::false_type {};
+
+	template<typename T>
+	struct is_atomic<std::atomic<T>> : std::true_type {};
+
+
+	//-------------------------------------------------------------------------
+	//remove_atomic: change std::atomic<type> to type
+
+	namespace detail {
+		template<typename Seq>
+		struct remove_atomic_impl;
+
+		template<template <typename...> typename Seq>
+		struct remove_atomic_impl<Seq<>> {
+			using type = Seq<>;
+		};
+
+		template<template <typename...> typename Seq, typename T>
+		struct remove_atomic_impl<Seq<T>> {
+			using type = Seq<T>;
+		};
+
+		template<template <typename...> typename Seq, typename T>
+		struct remove_atomic_impl<Seq<std::atomic<T>>> {
+			using type = Seq<T>;
+		};
+
+		template<template <typename...> typename Seq, typename T, typename... Ts >
+		struct remove_atomic_impl<Seq<T, Ts...>> {
+			using type = cat< typename remove_atomic_impl<Seq<T>>::type, typename remove_atomic_impl<Seq<Ts...>>::type >;
+		};
+	}
+	template <typename Seq>
+	using remove_atomic = typename detail::remove_atomic_impl<Seq>::type;
+
+	static_assert(std::is_same_v <
+			remove_atomic < type_list<char, float, char, int, bool, double> >, 
+			type_list<char, float, char, int, bool, double> 
+		>,
+		"The implementation of remove_atomic is bad");
+
+	static_assert(std::is_same_v <
+			remove_atomic < type_list< std::atomic<char>, float, char, int, bool, std::atomic<double>> >, 
+			type_list<char, float, char, int, bool, double>  
+		>,
+		"The implementation of remove_atomic is bad");
+
 
 	//-------------------------------------------------------------------------
 	//tuple algorithms

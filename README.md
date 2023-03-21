@@ -69,6 +69,8 @@ VTLL contains the following structs and algorithms:
 * *intersection*: return a list of those elements that are in all given lists
 * *power_set*: turn a set into a set of all subsets
 * *static_for*: with this compile time for loop you can loop over any tuple, type list, or variadic argument list
+* *is_atomic*: test whether a type is std::atomic<T>
+* *remove_atomic*: change all types of a list from std::atomic<T> to T
 
 ### Tuple Algorithms
 
