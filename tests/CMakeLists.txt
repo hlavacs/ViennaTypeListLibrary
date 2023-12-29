@@ -1,0 +1,13 @@
+set(TARGET testlib)
+
+set(SOURCE testlib.cpp)
+
+set(HEADERS )
+
+add_executable(${TARGET} ${SOURCE} ${HEADERS})
+
+target_compile_features(${TARGET} PUBLIC cxx_std_20)
+
+target_include_directories(${TARGET} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
+add_test(NAME testlibtest COMMAND testlib) # Command can be a target
