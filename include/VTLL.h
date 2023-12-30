@@ -1574,34 +1574,23 @@ namespace vtll {
 		"The implementation of ptr_to_ref_tuple is bad");
 
 	//-------------------------------------------------------------------------
-	//is_same_tuple: test whether two tuples are the same
+	//is_same_tuple: test whether two tuples are the same (Note: Clang does not accept strings as tuple elements)
 
-	namespace detail {
-		template<typename... Ts, size_t... Is>
-		constexpr auto is_same_tuple_impl(const std::tuple<Ts...>& t1, const std::tuple<Ts...>& t2, std::index_sequence<Is...>) {
-			return ((std::get<Is>(t1) == std::get<Is>(t2)) && ...);
-		}
-	}
-
-	template <typename... Ts>
-	constexpr auto is_same_tuple(const std::tuple<Ts...>& t1, const std::tuple<Ts...>& t2) {
-		return detail::is_same_tuple_impl( std::forward<decltype(t1)>(t1), std::forward<decltype(t2)>(t2), std::make_index_sequence<sizeof...(Ts)>{ } );
+	template <typename T>
+	constexpr auto is_same_tuple(T a, T b) {
+  		return [&a, &b]<std::size_t ...I>(std::index_sequence<I...>) {
+    		return ( (std::get<I>(a) == std::get<I>(b) ) && ... && true );
+  		}(std::make_index_sequence<std::tuple_size_v<T>>{});
 	}
 
 	template <typename T1, typename T2>
-	constexpr auto is_same_tuple(T1&& t1, T2&& t2) {
+	constexpr auto is_same_tuple(const T1& t1, const T2& t2) {
 		return false;
 	}
 
-	constexpr auto t1 = std::make_tuple(1, "a", 4.5);
-	constexpr auto t2 = std::make_tuple(1, "b", 4.5);
-	constexpr auto t3 = std::make_tuple("a", 4.5);
-
-	static_assert(is_same_tuple(t1, t1), "The implementation of is_same_tuple is bad");
-
-	//static_assert( is_same_tuple(std::make_tuple(1, "a", 4.5), std::make_tuple(1, "a", 4.5)), "The implementation of is_same_tuple is bad");
-	//static_assert(!is_same_tuple(std::make_tuple(1, "a", 4.5), std::make_tuple(1, "b", 4.5)), "The implementation of is_same_tuple is bad");
-	//static_assert(!is_same_tuple(std::make_tuple(1, "a", 4.5), std::make_tuple("a", 4.5)), "The implementation of is_same_tuple is bad");
+	static_assert( is_same_tuple( std::make_tuple(1, 'a', 4.5), std::make_tuple(1, 'a', 4.5) ), "The implementation of is_same_tuple is bad");
+	static_assert(!is_same_tuple( std::make_tuple(1, 'a', 4.5), std::make_tuple(1, 'b', 4.5) ), "The implementation of is_same_tuple is bad");
+	static_assert(!is_same_tuple( std::make_tuple(1, 'a', 4.5), std::make_tuple('a', 4.5)), "The implementation of is_same_tuple is bad");
 
 	//-------------------------------------------------------------------------
 	//sub_tuple: extract a subtuple from a tuple
@@ -1618,17 +1607,10 @@ namespace vtll {
 		return detail::sub_tuple_impl<Begin>(std::forward<T>(tup), std::make_integer_sequence<size_t, End - Begin>{ });
 	}
 
-	constexpr auto sub_tuple_implt1 = std::make_tuple(1, "a", 4.5, 'C', 5.0f);
-	constexpr auto sub_tuple_implt2 = std::make_tuple(4.5, 'C');
-	constexpr auto st1 = sub_tuple<2, 4>(sub_tuple_implt1);
-
-	//static_assert(is_same_tuple(st1, sub_tuple_implt2), "The implementation of sub_tuple is bad");
-	
-	//constexpr auto t2 = std::make_tuple(0.0, 1, 5.7f, 4.5, 'C', 5.0f);
-	//static_assert(is_same_tuple(sub_tuple<2, 4>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple(4.5, 'C')), "The implementation of sub_tuple is bad");
-	//static_assert(is_same_tuple(sub_tuple<0, 3>(std::make_tuple(0.0, 1, 5.7f, 4.5, 'C', 5.0f)), std::make_tuple(0.0, 1, 5.7f)), "The implementation of sub_tuple is bad");
-	//static_assert(!is_same_tuple(sub_tuple<2, 4>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple("a", 4.5, 'C')), "The implementation of sub_tuple is bad");
-	//static_assert(!is_same_tuple(sub_tuple<2, 4>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple('C')), "The implementation of sub_tuple is bad");
+	static_assert(is_same_tuple(sub_tuple<2, 4>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple(4.5, 'C')), "The implementation of sub_tuple is bad");
+	static_assert(is_same_tuple(sub_tuple<0, 3>(std::make_tuple(0.0, 1, 5.7f, 4.5, 'C', 5.0f)), std::make_tuple(0.0, 1, 5.7f)), "The implementation of sub_tuple is bad");
+	static_assert(!is_same_tuple(sub_tuple<2, 4>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple("a", 4.5, 'C')), "The implementation of sub_tuple is bad");
+	static_assert(!is_same_tuple(sub_tuple<2, 4>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple('C')), "The implementation of sub_tuple is bad");
 
 	//-------------------------------------------------------------------------
 	//sub_ref_tuple: extract a subtuple from a tuple of references
@@ -1674,8 +1656,8 @@ namespace vtll {
 		return detail::subtype_tuple_impl<Seq>(std::forward<T>(tup), std::make_integer_sequence<size_t, vtll::size<Seq>::value>{ });
 	}
 
-	//static_assert(is_same_tuple(subtype_tuple<vtll::tl<int,char>>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple(1,'C'))
-	//	, "The implementation of subtype_tuple is bad");
+	static_assert(is_same_tuple(subtype_tuple<vtll::tl<int,char>>(std::make_tuple(1, "a", 4.5, 'C', 5.0f)), std::make_tuple(1,'C'))
+		, "The implementation of subtype_tuple is bad");
 
 
 	//-------------------------------------------------------------------------
