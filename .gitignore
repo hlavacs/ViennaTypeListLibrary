@@ -42,6 +42,7 @@ Doxyfile.doxygen
 **/*.vcxproj.filters.user
 ALL_BUILD.vcxproj.user
 **/*.sln
+**/*.tcl
 
 [Dd]ebug/
 [Rr]elease/

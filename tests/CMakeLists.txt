@@ -1,3 +1,5 @@
+project(MyLibTests LANGUAGES CXX)
+
 set(TARGET testlib)
 
 set(SOURCE testlib.cpp)
@@ -8,6 +10,6 @@ add_executable(${TARGET} ${SOURCE} ${HEADERS})
 
 target_compile_features(${TARGET} PUBLIC cxx_std_20)
 
-target_include_directories(${TARGET} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${TARGET} PUBLIC ../include)
 
-add_test(NAME testlibtest COMMAND testlib) # Command can be a target
+add_test(NAME ${TARGET} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/testlib) # Command can be a target
