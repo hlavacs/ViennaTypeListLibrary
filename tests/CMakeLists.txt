@@ -12,6 +12,6 @@ add_executable(${TARGET} ${SOURCE} ${HEADERS})
 
 target_compile_features(${TARGET} PUBLIC cxx_std_20)
 
-target_include_directories(${TARGET} PUBLIC ../include)
+target_include_directories(${TARGET} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 add_test(NAME ${TARGET} COMMAND testlib) # Command can be a target
