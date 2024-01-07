@@ -12,7 +12,7 @@
 
 # =============================================================================
 # Project: ViennaTypeListLibrary
-# Configurations: Release
+# Configurations: Debug
 # =============================================================================
 
 #############################################
@@ -24,7 +24,7 @@ ninja_required_version = 1.5
 #############################################
 # Set configuration variable for custom commands.
 
-CONFIGURATION = Release
+CONFIGURATION = Debug
 # =============================================================================
 # Include auxiliary files.
 
@@ -482,10 +482,9 @@ build CMakeFiles/ContinuousSubmit | ${cmake_ninja_workdir}CMakeFiles/ContinuousS
 
 build cmake_object_order_depends_target_testlib: phony || tests/CMakeFiles/testlib.dir
 
-build tests/CMakeFiles/testlib.dir/testlib.cpp.obj: CXX_COMPILER__testlib_unscanned_Release C$:/data/GitHub/ViennaTypeListLibrary/tests/testlib.cpp || cmake_object_order_depends_target_testlib
-  CODE_CHECK = "C:\Program Files\CMake\bin\cmake.exe" -E __run_co_compile --tidy=clang-tidy;-checks=readability-*;cppcoreguidelines-*;-header-filter=.*;-p;build;--extra-arg=-std=c++20;--extra-arg-before=--driver-mode=g++ --source=C:\data\GitHub\ViennaTypeListLibrary\tests\testlib.cpp -- 
+build tests/CMakeFiles/testlib.dir/testlib.cpp.obj: CXX_COMPILER__testlib_unscanned_Debug C$:/data/GitHub/ViennaTypeListLibrary/tests/testlib.cpp || cmake_object_order_depends_target_testlib
   DEP_FILE = tests\CMakeFiles\testlib.dir\testlib.cpp.obj.d
-  FLAGS = -O3 -DNDEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrt -std=gnu++20
+  FLAGS = -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -std=gnu++20
   INCLUDES = -IC:/data/GitHub/ViennaTypeListLibrary/include
   OBJECT_DIR = tests\CMakeFiles\testlib.dir
   OBJECT_FILE_DIR = tests\CMakeFiles\testlib.dir
@@ -500,8 +499,8 @@ build tests/CMakeFiles/testlib.dir/testlib.cpp.obj: CXX_COMPILER__testlib_unscan
 #############################################
 # Link the executable tests\testlib.exe
 
-build tests/testlib.exe: CXX_EXECUTABLE_LINKER__testlib_Release tests/CMakeFiles/testlib.dir/testlib.cpp.obj
-  FLAGS = -O3 -DNDEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrt
+build tests/testlib.exe: CXX_EXECUTABLE_LINKER__testlib_Debug tests/CMakeFiles/testlib.dir/testlib.cpp.obj
+  FLAGS = -O0 -g -Xclang -gcodeview -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd
   LINK_FLAGS = -Xlinker /subsystem:console
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 -loldnames
   OBJECT_DIR = tests\CMakeFiles\testlib.dir
