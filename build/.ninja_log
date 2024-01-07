@@ -1,0 +1,4 @@
+# ninja log v5
+5	16	0	clean	ca20ad35778315c3
+3	2666	7262967990700823	tests/CMakeFiles/testlib.dir/testlib.cpp.obj	53c1bfab3cdda25f
+2669	2768	7262967991806399	tests/testlib.exe	a8554ddc37e0aec4
