@@ -22,10 +22,16 @@ CMakeDoxyfile.in
 CMakeDoxygenDefaults.cmake
 _deps
 **/examples.dir
-**/*.dir
-**/*.cmake
-**/*.depend
-**/*.pdb
+*.dir
+*.cmake
+*.depend
+*.pdb
+*.exe
+*.ninja_deps
+*.ninja_log
+*.ninja
+*.exe
+build/
 
 # MSVC cmake project files
 ALL_BUILD.vcxproj
