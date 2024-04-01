@@ -1500,6 +1500,32 @@ namespace vtll {
 		"The implementation of to_ref_tuple is bad");
 
 	//-------------------------------------------------------------------------
+	//to_const_ref_tuple: turn a list into a tuple of const reference types. when creating such tuples, use std::ref as a wrapper for the elements!
+
+	namespace detail {
+		template<typename Seq>
+		struct to_const_ref_tuple_impl;
+
+		template<template <typename...> class Seq>
+		struct to_const_ref_tuple_impl<Seq<>> {
+			using type = std::tuple<>;
+		};
+
+		template<template <typename...> class Seq, typename... Ts>
+		struct to_const_ref_tuple_impl<Seq<Ts...>> {
+			using type = std::tuple<const Ts&...>;
+		};
+	}
+	template <typename Seq>
+	using to_const_ref_tuple = typename detail::to_const_ref_tuple_impl<Seq>::type;
+
+	static_assert(
+		std::is_same_v< to_const_ref_tuple<type_list<double, int>>, std::tuple<const double&, const int&> >,
+		"The implementation of to_const_ref_tuple is bad");
+
+
+
+	//-------------------------------------------------------------------------
 	//to_rvref_tuple: turn a list into a tuple of reference types. when creating such tuples, use std::ref as a wrapper for the elements!
 
 	namespace detail {
