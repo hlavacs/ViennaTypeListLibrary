@@ -354,6 +354,26 @@ namespace vtll {
 		"The implementation of to_ref is bad");
 
 	//-------------------------------------------------------------------------
+	//to_const_ref: turn list elements into const references
+
+	namespace detail {
+		template <typename Seq>
+		struct to_const_ref_impl;
+
+		template <template <typename...> typename Seq, typename... Ts>
+		struct to_const_ref_impl<Seq<Ts...>> {
+			using type = Seq<const Ts&...>;
+		};
+	}
+
+	template <typename Seq>
+	using to_const_ref = typename detail::to_const_ref_impl<Seq>::type;
+
+	static_assert(
+		std::is_same_v< to_const_ref< type_list<double, int> >, type_list<const double&, const int&> >,
+		"The implementation of to_const_ref is bad");
+
+	//-------------------------------------------------------------------------
 	//to_ptr: turn list elements into pointers
 
 	namespace detail {
