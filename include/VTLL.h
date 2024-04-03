@@ -319,6 +319,40 @@ namespace vtll {
 		std::is_same_v< cat< type_list<double, int>, type_list<char, float>, type_list<int, float> >, type_list<double, int, char, float, int, float> >,
 		"The implementation of cat is bad");
 
+
+	//-------------------------------------------------------------------------
+	//sublist: extract a sublist from a type list
+
+	namespace detail {
+		template <typename Seq, size_t S, size_t E>
+		struct sublist_impl;
+
+		template <template <typename...> typename Seq, typename... Ts, size_t S, size_t E>
+		requires (E<S)
+		struct sublist_impl<Seq<Ts...>, S, E> {
+			using type = Seq<>;
+		};
+
+		template <template <typename...> typename Seq, size_t S, size_t E>
+		struct sublist_impl<Seq<>, S, E> {
+			using type = Seq<>;
+		};
+
+		template <typename Seq, size_t S, size_t E>
+		requires (S<=E)
+		struct sublist_impl<Seq, S, E> {
+			using type = cat< type_list< Nth_type<Seq, S> >, typename sublist_impl<Seq, S + 1, E>::type >;
+		};
+	}
+
+	template <typename Seq, size_t S, size_t E>
+	using sublist = typename detail::sublist_impl<Seq, S, E>::type;
+
+	static_assert(
+		std::is_same_v< sublist< type_list<double, char, bool, double>, 1, 2 >, type_list<char, bool> >,
+		"The implementation of sublist is bad");
+
+
 	//-------------------------------------------------------------------------
 	//app: append a parameter pack to a type list
 

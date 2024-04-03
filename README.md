@@ -28,8 +28,10 @@ VTLL contains the following structs and algorithms:
 * *back*: get the last element from a list
 * *index_of*: index of first occurrence of a type within a type list
 * *cat*: concatenate type lists to one big type list, the result is of the first list type
+* *sublist*: extract a sublist from a type list
 * *app*: append a parameter pack to a type list
 * *to_ref*: turn list elements into references
+* *to_const_ref*: turn list elements into const references
 * *to_ptr*: turn list elements into pointers
 * *to_variant*: make a summary variant type of all elements in a list
 * *transform*: transform list<types> into list<Function<types>>
@@ -77,6 +79,7 @@ VTLL contains the following structs and algorithms:
 
 * *to_tuple*: turn a list into a tuple
 * *to_ref_tuple*: turn a list into a tuple of reference types. When creating such tuples, use std::tie or std::forward_as_tuple
+* *to_const_ref_tuple*: turn a list into a tuple of const reference types. when creating such tuples, use std::ref as a wrapper for the elements!
 * *to_rvref_tuple*: turn a list into a tuple of prvalue reference types. When creating such tuples, use std::move, std::tie or std::forward_as_tuple
 * *to_ptr_tuple*: turn a list into a tuple of pointer types
 * *ptr_tuple_to_ref_tuple*: turn a tuple of pointers into a tuple of references
