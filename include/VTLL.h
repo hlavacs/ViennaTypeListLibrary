@@ -353,7 +353,11 @@ namespace vtll {
 		"The implementation of sublist is bad");
 
 	static_assert(
-		std::is_same_v< sublist< type_list<double, char, bool, double, int, float>, 0, 3 >, type_list<double, char, bool, double> >,
+		std::is_same_v< sublist< type_list<double, char, bool, double, int, float>, 0, 5 >, type_list<double, char, bool, double, int, float> >,
+		"The implementation of sublist is bad");
+
+	static_assert(
+		std::is_same_v< sublist< type_list<double, char, bool, double, int, float>, 3, 5 >, type_list<double, int, float> >,
 		"The implementation of sublist is bad");
 
 
