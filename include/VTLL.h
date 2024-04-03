@@ -352,6 +352,10 @@ namespace vtll {
 		std::is_same_v< sublist< type_list<double, char, bool, double>, 1, 2 >, type_list<char, bool> >,
 		"The implementation of sublist is bad");
 
+	static_assert(
+		std::is_same_v< sublist< type_list<double, char, bool, double, int, float>, 0, 3 >, type_list<double, char, bool, double> >,
+		"The implementation of sublist is bad");
+
 
 	//-------------------------------------------------------------------------
 	//app: append a parameter pack to a type list
