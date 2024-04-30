@@ -208,12 +208,12 @@ namespace vtll {
 			using type = Seq<>;
 		};
 
-		template <int N, template <typename...> typename Seq>
+		template <template <typename...> typename Seq, size_t N>
 		struct Nth_type_impl<Seq<>, N> {
 			using type = Seq<>;
 		};
 
-		template <int N, template <typename...> typename Seq, typename... Ts>
+		template <template <typename...> typename Seq, typename... Ts, size_t N>
 		struct Nth_type_impl<Seq<Ts...>, N> {
 			using type = typename std::tuple_element<N, std::tuple<Ts...>>::type;
 		};
@@ -994,10 +994,10 @@ namespace vtll {
 		template <typename U>
 		struct impl;
 
-		template <>
-		struct impl<std::integer_sequence<std::size_t>> {
-			using type = std::tuple<>;
-		};
+		//template <>
+		//struct impl<std::integer_sequence<std::size_t>> {
+		//	using type = std::tuple<>;
+		//};
 
 		template <size_t... Is>
 		struct impl<std::index_sequence<Is...>> {
