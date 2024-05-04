@@ -654,6 +654,16 @@ namespace vtll {
 		struct is_same_list<Seq<>, T> {
 			static const bool value = (size<T>::value == 0);
 		};
+
+		template<template <typename...> typename Seq, typename T>
+		struct is_same_list<T, Seq<>> {
+			static const bool value = (size<T>::value == 0);
+		};
+
+		template<template <typename...> typename Seq1, template <typename...> typename Seq2>
+		struct is_same_list<Seq1<>, Seq2<>> {
+			static const bool value = true;
+		};
 	}
 	template <typename Seq1, typename Seq2>
 	struct is_same_list {
@@ -661,6 +671,8 @@ namespace vtll {
 	};
 
 	static_assert( is_same_list<type_list<>, type_list<>>::value, "The implementation of is_same_list is bad");
+	static_assert(!is_same_list<type_list<>, type_list<int>>::value, "The implementation of is_same_list is bad");
+	static_assert(!is_same_list<type_list<int>, type_list<>>::value, "The implementation of is_same_list is bad");
 	static_assert( is_same_list<type_list<double>, type_list<double>>::value, "The implementation of is_same_list is bad");
 	static_assert( is_same_list<type_list<double, int>, type_list<double, int>>::value, "The implementation of is_same_list is bad");
 	static_assert(!is_same_list<type_list<double, int>, type_list<int, double>>::value, "The implementation of is_same_list is bad");
