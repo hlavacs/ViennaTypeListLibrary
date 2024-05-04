@@ -38,6 +38,8 @@ VTLL contains the following structs and algorithms:
 * *transform_size_t*: transform list<types> into list<Function<types,size_t>>, e.g. for using std::array<T,size_t>
 * *transform_front*: transform list<types> + T into list<Function<T,types>>
 * *transform_back*: transform list<types> + T into list<Function<types,T>>
+* *is_same_list*: check whether two lists are identical
+* *is_same_set*: test if two lists contain the same elements
 * *is_same*: test if a list contains the same types as types of a variadic parameter pack
 * *is_pow2*: test whether a std::integral_constant<size_t, I> is a power of 2
 * *smallest_pow2_larger_eq*: find smallest power of 2 larger or equal than a given number

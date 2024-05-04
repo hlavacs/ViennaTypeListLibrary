@@ -583,42 +583,6 @@ namespace vtll {
 		"The implementation of transfer is bad");
 
 	//-------------------------------------------------------------------------
-	//is_same: test if a list contains the same types as types of a variadic parameter pack
-
-	namespace detail {
-		template<typename Seq, typename... Args>
-		struct is_same_impl {
-			static const bool value = false;
-		};
-
-		template<template <typename...> class Seq, typename... Ts, typename... Args>
-		struct is_same_impl<Seq<Ts...>, Args...> {
-			static const bool value = (sizeof...(Ts) == sizeof...(Args) && (std::is_same_v<std::decay_t<Ts>, std::decay_t<Args>> && ... && true));
-		};
-	}
-	template <typename Seq, typename... Args>
-	struct is_same {
-		static const bool value = detail::is_same_impl<Seq, Args...>::value;
-	};
-
-	static_assert( is_same<type_list<double, int>, double, int>::value, "The implementation of is_same is bad");
-
-	//-------------------------------------------------------------------------
-	//all_pow2: return a list of all possible powers of 2 with 64 bits
-
-	namespace detail {
-		template<typename T>
-		struct all_pow2_impl;
-
-		template<template<class Ty, Ty... Is> typename T, typename Ty, Ty... Is>
-		struct all_pow2_impl<T<Ty, Is...>> {
-			using type = type_list< std::integral_constant<size_t, (1ULL << Is)>... >;
-		};
-	}
-
-	using all_pow2 = typename detail::all_pow2_impl< std::make_index_sequence<64> >::type;
-
-	//-------------------------------------------------------------------------
 	//has_type: check whether a type list contains a type
 
 	namespace detail {
@@ -642,6 +606,103 @@ namespace vtll {
 
 	static_assert(has_type<type_list<double, int, char, double>, char>::value, "The implementation of has_type is bad");
 	static_assert(!has_type<type_list<double, int, char, double>, float>::value, "The implementation of has_type is bad");
+
+	//-------------------------------------------------------------------------
+	//has_all_types: check whether a type list contains ALL types of a second typelist
+
+	namespace detail {
+		template<typename Seq1, typename Seq2>
+		struct has_all_types_impl;
+
+		template<template <typename...> typename Seq1, typename... Ts1, template <typename...> typename Seq2>
+		struct has_all_types_impl<Seq1<Ts1...>, Seq2<>> {
+			static const bool value = true;
+		};
+
+		template<template <typename...> typename Seq1, typename... Ts1, template <typename...> typename Seq2, typename... Ts2>
+		struct has_all_types_impl<Seq1<Ts1...>, Seq2<Ts2...>> {
+			static const bool value = (has_type<Seq1<Ts1...>, Ts2>::value && ... && true);
+		};
+	}
+	template <typename Seq1, typename Seq2>
+	struct has_all_types {
+		static const bool value = detail::has_all_types_impl<Seq1, Seq2>::value;
+	};
+
+	static_assert(has_all_types<type_list<double, int, char>, type_list<int, char>>::value, "The implementation of has_all_types is bad");
+	static_assert(!has_all_types<type_list<double, int, char>, type_list<bool, char>>::value, "The implementation of has_all_types is bad");
+	static_assert(has_all_types<type_list<double, int, char>, type_list<>>::value, "The implementation of has_all_types is bad");
+
+	//-------------------------------------------------------------------------
+	//is_same_list: check whether two lists are identical
+
+	namespace detail {
+		template<typename Seq1, typename Seq2>
+		struct is_same_list2;
+
+		template<template <typename...> typename Seq1, typename... Ts1, template <typename...> typename Seq2, typename... Ts2>
+		struct is_same_list2<Seq1<Ts1...>, Seq2<Ts2...>> {
+			static const bool value = (std::is_same_v<Ts1, Ts2> || ... );
+		};
+
+		template<typename Seq1, typename Seq2>
+		struct is_same_list {
+			static const bool value = is_same_list2<Seq1, sublist<Seq2, 0, size<Seq1>::value - 1>>::value;
+		};
+
+		template<template <typename...> typename Seq, typename T>
+		struct is_same_list<Seq<>, T> {
+			static const bool value = (size<T>::value == 0);
+		};
+	}
+	template <typename Seq1, typename Seq2>
+	struct is_same_list {
+		static const bool value = (size<Seq1>::value == size<Seq2>::value && detail::is_same_list<Seq1, Seq2>::value);
+	};
+
+	static_assert( is_same_list<type_list<>, type_list<>>::value, "The implementation of is_same_list is bad");
+	static_assert( is_same_list<type_list<double>, type_list<double>>::value, "The implementation of is_same_list is bad");
+	static_assert( is_same_list<type_list<double, int>, type_list<double, int>>::value, "The implementation of is_same_list is bad");
+	static_assert(!is_same_list<type_list<double, int>, type_list<int, double>>::value, "The implementation of is_same_list is bad");
+	static_assert(!is_same_list<type_list<double, int>, type_list<double, int, char>>::value, "The implementation of is_same_list is bad");
+
+	//-------------------------------------------------------------------------
+	//is_same_set: test if two lists contain the same elements
+
+	template <typename Seq1, typename Seq2>
+	struct is_same_set {
+		static const bool value = (size<Seq1>::value == size<Seq2>::value && has_all_types<Seq1, Seq2>::value && has_all_types<Seq2, Seq1>::value);
+	};
+
+	static_assert( is_same_set<type_list<double, int>, type_list<int, double>>::value, "The implementation of is_same_set is bad");
+	static_assert( !is_same_set<type_list<double, int>, type_list<double>>::value, "The implementation of is_same_set is bad");
+	static_assert( !is_same_set<type_list<double, int>, type_list<int, char, double>>::value, "The implementation of is_same_set is bad");
+
+	//-------------------------------------------------------------------------
+	//is_same: test if a list contains the same types as types of a variadic parameter pack
+
+	template <typename Seq, typename... Args>
+	struct is_same {
+		static const bool value = is_same_list<Seq, type_list<Args...>>::value;
+	};
+
+	static_assert( is_same<type_list<double, int>, double, int>::value, "The implementation of is_same is bad");
+
+	//-------------------------------------------------------------------------
+	//all_pow2: return a list of all possible powers of 2 with 64 bits
+
+	namespace detail {
+		template<typename T>
+		struct all_pow2_impl;
+
+		template<template<class Ty, Ty... Is> typename T, typename Ty, Ty... Is>
+		struct all_pow2_impl<T<Ty, Is...>> {
+			using type = type_list< std::integral_constant<size_t, (1ULL << Is)>... >;
+		};
+	}
+
+	using all_pow2 = typename detail::all_pow2_impl< std::make_index_sequence<64> >::type;
+
 
 	//-------------------------------------------------------------------------
 	//have_type: check whether all elements of a list of lists contain an element
@@ -754,31 +815,6 @@ namespace vtll {
 	static_assert(has_any_type<type_list<double, int, char>, type_list<int, float>>::value, "The implementation of has_any_type is bad");
 	static_assert(!has_any_type<type_list<double, int, char>, type_list<bool,float>>::value, "The implementation of has_any_type is bad");
 
-	//-------------------------------------------------------------------------
-	//has_all_types: check whether a type list contains ALL types of a second typelist
-
-	namespace detail {
-		template<typename Seq1, typename Seq2>
-		struct has_all_types_impl;
-
-		template<template <typename...> typename Seq1, typename... Ts1, template <typename...> typename Seq2>
-		struct has_all_types_impl<Seq1<Ts1...>, Seq2<>> {
-			static const bool value = true;
-		};
-
-		template<template <typename...> typename Seq1, typename... Ts1, template <typename...> typename Seq2, typename... Ts2>
-		struct has_all_types_impl<Seq1<Ts1...>, Seq2<Ts2...>> {
-			static const bool value = (has_type<Seq1<Ts1...>, Ts2>::value && ... && true);
-		};
-	}
-	template <typename Seq1, typename Seq2>
-	struct has_all_types {
-		static const bool value = detail::has_all_types_impl<Seq1, Seq2>::value;
-	};
-
-	static_assert(has_all_types<type_list<double, int, char>, type_list<int, char>>::value, "The implementation of has_all_types is bad");
-	static_assert(!has_all_types<type_list<double, int, char>, type_list<bool, char>>::value, "The implementation of has_all_types is bad");
-	static_assert(has_all_types<type_list<double, int, char>, type_list<>>::value, "The implementation of has_all_types is bad");
 
 	//-------------------------------------------------------------------------
 	//not_in_list: Return those elements of Seq2 that are NOT in Seq1
