@@ -1464,7 +1464,7 @@ namespace vtll {
 	}
 
 	namespace detail {
-		void f() {
+		inline void f() {
 			using list = type_list<int, double, bool, float >;
 
 			auto fun = [&]<typename T, T I>(std::integral_constant<T, I> i) {
