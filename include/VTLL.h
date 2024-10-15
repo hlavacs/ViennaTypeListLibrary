@@ -1728,11 +1728,11 @@ namespace vtll {
 	}
 
 	namespace detail::ex2 {
-		int i;
-		double d;
-		char c;
-		auto tup1 = std::tie(i, d, c);
-		auto tup2 = ref_tuple_to_ptr_tuple(tup1);
+		inline int i;
+		inline double d;
+		inline char c;
+		inline auto tup1 = std::tie(i, d, c);
+		inline auto tup2 = ref_tuple_to_ptr_tuple(tup1);
 	}
 
 	static_assert(
