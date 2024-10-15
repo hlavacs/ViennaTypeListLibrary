@@ -1701,11 +1701,11 @@ namespace vtll {
 	}
 
 	namespace detail::ex1 {
-		int i;
-		double d;
-		char c;
-		auto tup1 = std::make_tuple(&i, &d, &c);
-		auto tup2 = ptr_to_ref_tuple(tup1);
+		inline int i;
+		inline double d;
+		inline char c;
+		inline auto tup1 = std::make_tuple(&i, &d, &c);
+		inline auto tup2 = ptr_to_ref_tuple(tup1);
 	}
 
 	static_assert(
@@ -1786,11 +1786,11 @@ namespace vtll {
 		constexpr auto sub_ref_tuple_impl(T&& tup, std::index_sequence<Is...>) {
 			return std::tie(std::get<Begin + Is>(tup)...);
 		}
-		float data0 = 0.0f;
-		int data1 = 1;
-		char data2 = 'A';
-		double data3 = 3.0;
-		bool data4 = true;
+		inline float data0 = 0.0f;
+		inline int data1 = 1;
+		inline char data2 = 'A';
+		inline double data3 = 3.0;
+		inline bool data4 = true;
 	}
 
 	template <size_t Begin, size_t End, typename T>
